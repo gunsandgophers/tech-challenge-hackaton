@@ -44,15 +44,16 @@ func (cc *UploadVideoController) UploadVideos(c httpserver.HTTPContext) {
 
 		file, err := video[0].Open()
 		if err != nil {
-			log.Fatalln("Error on open file", err)
+			log.Println("Error on open file - ", err)
 		}
 
 		videoUpload, err := usecase.Execute(filename, file, header.Get("Content-Type"))
 		if err != nil {
-			log.Fatalln("Error on upload file", err)
+			log.Println("Error on upload file - ", err)
+		} else {
+			videosUpload = append(videosUpload, videoUpload)
 		}
 
-		videosUpload = append(videosUpload, videoUpload)
 	}
 
 	response := dtos.VideoUploadResponseDTO{Videos: videosUpload}

@@ -29,7 +29,10 @@ func NewUploadVideoUseCase(
 func (uv *UploadVideoUseCase) Execute(
 	filename string, file multipart.File, mimeType string) (*dtos.VideoUploadDTO, error) {
 
-	video := entities.CreateVideo(filename, entities.MIMEType(mimeType))
+	video, err := entities.CreateVideo(filename, entities.MIMEType(mimeType))
+	if err != nil {
+		return nil, err
+	}
 
 	newFilename, err := uv.storageService.UploadFile(
 		fmt.Sprint(video.GetID(), "_", video.GetFilename()), file)
@@ -37,9 +40,9 @@ func (uv *UploadVideoUseCase) Execute(
 		return nil, err
 	}
 
-	err = uv.videoRepository.Insert(
-		entities.RestoreVideo(video.GetID(), video.GetStatus(), newFilename, video.GetMimeType()),
-	)
+	video, _ = entities.RestoreVideo(video.GetID(), video.GetStatus(), newFilename, video.GetMimeType())
+
+	err = uv.videoRepository.Insert(video)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,8 @@
 package entities
 
 import (
+	"tech-challenge-hackaton/internal/core/errors"
+
 	"github.com/google/uuid"
 )
 
@@ -17,6 +19,17 @@ func (s MIMEType) String() string {
 	return string(s)
 }
 
+func (s MIMEType) IsValid() bool {
+
+	for _, t := range MIME_TYPES {
+		if t == s {
+			return true
+		}
+	}
+
+	return false
+}
+
 const (
 	VIDEO_STATUS_AWAITING VideoStatus = "AWAITING"
 	VIDEO_STATUS_FINISHED VideoStatus = "FINISHED"
@@ -24,11 +37,11 @@ const (
 )
 
 const (
-	MIME_TYPE_MPEG VideoStatus = "video/mpeg"
-	MIME_TYPE_MP4  VideoStatus = "video/mp4"
-	MIME_TYPE_OGG  VideoStatus = "video/ogg"
-	MIME_TYPE_WEBM VideoStatus = "video/webm"
+	MIME_TYPE_MPEG MIMEType = "video/mpeg"
+	MIME_TYPE_MP4  MIMEType = "video/mp4"
 )
+
+var MIME_TYPES = []MIMEType{MIME_TYPE_MPEG, MIME_TYPE_MP4}
 
 type Video struct {
 	id       string
@@ -37,7 +50,7 @@ type Video struct {
 	mimeType MIMEType
 }
 
-func CreateVideo(filename string, mimeType MIMEType) *Video {
+func CreateVideo(filename string, mimeType MIMEType) (*Video, error) {
 	return RestoreVideo(
 		uuid.NewString(),
 		VIDEO_STATUS_AWAITING,
@@ -51,13 +64,17 @@ func RestoreVideo(
 	status VideoStatus,
 	filename string,
 	mimeType MIMEType,
-) *Video {
-	return &Video{
-		id:       id,
-		status:   status,
-		filename: filename,
-		mimeType: mimeType,
+) (*Video, error) {
+	if mimeType.IsValid() {
+		return &Video{
+			id:       id,
+			status:   status,
+			filename: filename,
+			mimeType: mimeType,
+		}, nil
 	}
+
+	return nil, errors.ErrMimeTypeInvalid
 }
 
 func (v *Video) GetID() string {
