@@ -1,0 +1,69 @@
+services:
+  api:
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+    env_file: ./.env.dev
+    restart: always
+    ports:
+      - "3003:8080"
+    volumes:
+      - ./:/api
+    depends_on:
+      localstack:
+        condition: service_started
+      db:
+        condition: service_healthy
+  localstack:
+    image: localstack/localstack:4.0
+    ports:
+      - "127.0.0.1:4566:4566" # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559" # external services port range
+    env_file: ./.env.dev
+    environment:
+      - DEBUG=1 # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
+      - SERVICES=s3
+    volumes:
+      - "./localstack/start.sh:/etc/localstack/init/ready.d/init-aws.sh" # ready hook
+      - ./localstack/data:/var/lib/localstack
+      - "/var/run/docker.sock:/var/run/docker.sock"
+  db:
+    image: postgres:16.3
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+  pgadmin4:
+    image: elestio/pgadmin:REL-8_6
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@challenge.com
+      PGADMIN_DEFAULT_PASSWORD: 12345678
+      PGADMIN_LISTEN_PORT: 8080
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data/servers.json:/pgadmin4/servers.json
+    depends_on:
+      db:
+        condition: service_healthy
+  migrate:
+    build:
+      context: ./migrations
+      dockerfile: Dockerfile
+    environment:
+      DB_URI: "postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}?sslmode=disable"
+    volumes:
+      - ./migrations:/migrations
+    restart: on-failure:5
+    depends_on:
+      db:
+        condition: service_healthy
