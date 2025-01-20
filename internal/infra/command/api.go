@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"tech-challenge-hackaton/internal/infra/app"
 	"tech-challenge-hackaton/internal/infra/clients"
 	"tech-challenge-hackaton/internal/infra/database"
@@ -15,9 +16,11 @@ func main() {
 
 	// CLIENTS
 	storageClient := clients.NewS3Client()
+	queueClient := clients.NewSQSClient()
 
 	// SERVICES
 	storageService := services.NewAwsS3Service(storageClient)
+	queueService := services.NewAwsSQSService(queueClient)
 
 	// REPOSITORIES
 	videoRepository := repositories.NewVideoRepositoryDB(connection)
@@ -26,6 +29,7 @@ func main() {
 		httpServer,
 		storageService,
 		videoRepository,
+		queueService,
 	)
 
 	app.Run()

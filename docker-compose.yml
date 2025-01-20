@@ -22,7 +22,7 @@ services:
     env_file: ./.env.dev
     environment:
       - DEBUG=1 # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
-      - SERVICES=s3
+      - SERVICES=s3,sqs
     volumes:
       - "./localstack/start.sh:/etc/localstack/init/ready.d/init-aws.sh" # ready hook
       - ./localstack/data:/var/lib/localstack

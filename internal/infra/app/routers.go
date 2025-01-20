@@ -7,7 +7,8 @@ import (
 
 func registerRouters(app *APIApp) {
 
-	videoController := controllers.NewUploadVideoController(app.storageService, app.videoRepository)
+	videoController := controllers.
+		NewUploadVideoController(app.storageService, app.videoRepository, app.queueService)
 
 	baseUrl := "/api/v1"
 	app.httpServer.(httpserver.HTTPRoutes).SetBasePath(baseUrl)

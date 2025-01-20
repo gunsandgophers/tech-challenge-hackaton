@@ -10,12 +10,14 @@ type APIApp struct {
 	httpServer      httpserver.HTTPServer
 	storageService  services.StorageServiceInterface
 	videoRepository repositories.VideoRepositoryInterface
+	queueService    services.QueueServiceInterface
 }
 
 func NewAPIApp(
 	httpServer httpserver.HTTPServer,
 	storageService services.StorageServiceInterface,
 	videoRepository repositories.VideoRepositoryInterface,
+	queueService services.QueueServiceInterface,
 ) *APIApp {
 	app := &APIApp{}
 
@@ -24,6 +26,7 @@ func NewAPIApp(
 
 	// SERVICES
 	app.storageService = storageService
+	app.queueService = queueService
 
 	//REPOSITORIES
 	app.videoRepository = videoRepository

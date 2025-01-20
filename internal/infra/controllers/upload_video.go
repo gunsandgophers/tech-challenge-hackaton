@@ -13,16 +13,18 @@ import (
 type UploadVideoController struct {
 	storageService  services.StorageServiceInterface
 	videoRepository repositories.VideoRepositoryInterface
+	queueService    services.QueueServiceInterface
 }
 
 func NewUploadVideoController(
 	storageService services.StorageServiceInterface,
 	videoRepository repositories.VideoRepositoryInterface,
-
+	queueService services.QueueServiceInterface,
 ) *UploadVideoController {
 	return &UploadVideoController{
 		storageService:  storageService,
 		videoRepository: videoRepository,
+		queueService:    queueService,
 	}
 }
 
@@ -33,7 +35,11 @@ func (cc *UploadVideoController) UploadVideos(c httpserver.HTTPContext) {
 		return
 	}
 
-	usecase := videos.NewUploadVideoUseCase(cc.storageService, cc.videoRepository)
+	usecase := videos.NewUploadVideoUseCase(
+		cc.storageService,
+		cc.videoRepository,
+		cc.queueService,
+	)
 
 	videosUpload := []*dtos.VideoUploadDTO{}
 
