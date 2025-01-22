@@ -44,7 +44,7 @@ func (uv *UploadVideoUseCase) Execute(
 		return nil, err
 	}
 
-	newFilename, err := uv.storageService.UploadFile(
+	newFilename, err := uv.storageService.UploadVideo(
 		fmt.Sprint(video.GetID(), "_", video.GetFilename()), file)
 	if err != nil {
 		return nil, err

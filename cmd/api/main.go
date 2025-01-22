@@ -35,9 +35,15 @@ func main() {
 		config.AWSSecretAccessKey,
 		config.AWSBaseEndpoint,
 	)
+	cognitoClient := clients.NewCognitoClient(
+		config.AWSRegion,
+		config.AWSAppClientID,
+		config.AWSUserPoolID,
+	)
 	// SERVICES
 	storageService := services.NewAwsS3Service(storageClient, config.AWSBucketName)
 	queueService := services.NewAwsSQSService(queueClient, config.QueueProcessVideo)
+	userManagerService := services.NewAWSCognitoService(cognitoClient)
 	// REPOSITORIES
 	videoRepository := repositories.NewVideoRepositoryDB(connection)
 	// APP
@@ -46,6 +52,7 @@ func main() {
 		storageService,
 		videoRepository,
 		queueService,
+		userManagerService,
 	)
 	app.Run()
 	defer connection.Close()

@@ -7,10 +7,11 @@ import (
 )
 
 type APIApp struct {
-	httpServer      httpserver.HTTPServer
-	storageService  services.StorageServiceInterface
-	videoRepository repositories.VideoRepositoryInterface
-	queueService    services.QueueServiceInterface
+	httpServer         httpserver.HTTPServer
+	storageService     services.StorageServiceInterface
+	videoRepository    repositories.VideoRepositoryInterface
+	queueService       services.QueueServiceInterface
+	userManagerService services.UserManagerServiceInterface
 }
 
 func NewAPIApp(
@@ -18,6 +19,7 @@ func NewAPIApp(
 	storageService services.StorageServiceInterface,
 	videoRepository repositories.VideoRepositoryInterface,
 	queueService services.QueueServiceInterface,
+	userManagerService services.UserManagerServiceInterface,
 ) *APIApp {
 	app := &APIApp{}
 
@@ -27,6 +29,7 @@ func NewAPIApp(
 	// SERVICES
 	app.storageService = storageService
 	app.queueService = queueService
+	app.userManagerService = userManagerService
 
 	//REPOSITORIES
 	app.videoRepository = videoRepository

@@ -1,21 +1,21 @@
 package services
 
 import (
-	"context"
 	"encoding/json"
 	"tech-challenge-hackaton/internal/application/entities"
-
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/sqs"
+	"tech-challenge-hackaton/internal/infra/clients"
 )
 
 type AwsSQSService struct {
-	client *sqs.Client
+	client *clients.SQSClient
 	queueProcessVideo string
 }
 
-func NewAwsSQSService(client *sqs.Client, queueProcessVideo string) *AwsSQSService {
-	return &AwsSQSService{client: client, queueProcessVideo: queueProcessVideo}
+func NewAwsSQSService(client *clients.SQSClient, queueProcessVideo string) *AwsSQSService {
+	return &AwsSQSService{
+		client: client,
+		queueProcessVideo: queueProcessVideo,
+	}
 }
 
 func (s *AwsSQSService) sendMessage(message interface{}, queueURL string) error {
@@ -23,11 +23,7 @@ func (s *AwsSQSService) sendMessage(message interface{}, queueURL string) error 
 	if err != nil {
 		return nil
 	}
-	_, err = s.client.SendMessage(context.Background(), &sqs.SendMessageInput{
-		MessageBody: aws.String(string(body)),
-		QueueUrl:    aws.String(queueURL),
-	})
-	return err
+	return s.client.SendMessage(string(body), queueURL)
 }
 
 func (s *AwsSQSService) SendVideoForProcessing(video *entities.Video) error {
