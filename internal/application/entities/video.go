@@ -1,11 +1,12 @@
 package entities
 
 import (
-	"tech-challenge-hackaton/internal/core/errors"
+	"tech-challenge-hackaton/internal/application/errors"
 
 	"github.com/google/uuid"
 )
 
+// TODO: Mandar isso para VO
 type (
 	VideoStatus string
 	MIMEType    string

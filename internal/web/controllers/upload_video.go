@@ -3,10 +3,9 @@ package controllers
 import (
 	"log"
 	"net/http"
-	"tech-challenge-hackaton/internal/core/dtos"
-	"tech-challenge-hackaton/internal/core/repositories"
-	"tech-challenge-hackaton/internal/core/services"
-	"tech-challenge-hackaton/internal/core/use_cases/videos"
+	"tech-challenge-hackaton/internal/application/repositories"
+	"tech-challenge-hackaton/internal/application/services"
+	"tech-challenge-hackaton/internal/application/usecases/videos"
 	httpserver "tech-challenge-hackaton/internal/infra/http"
 )
 
@@ -41,7 +40,7 @@ func (cc *UploadVideoController) UploadVideos(c httpserver.HTTPContext) {
 		cc.queueService,
 	)
 
-	videosUpload := []*dtos.VideoUploadDTO{}
+	videosUpload := []*videos.VideoUploadDTO{}
 
 	for _, video := range form.File {
 
@@ -62,7 +61,7 @@ func (cc *UploadVideoController) UploadVideos(c httpserver.HTTPContext) {
 
 	}
 
-	response := dtos.VideoUploadResponseDTO{Videos: videosUpload}
+	response := videos.VideoUploadResponseDTO{Videos: videosUpload}
 
 	sendSuccess(c, http.StatusCreated, "Upload finished", response)
 }

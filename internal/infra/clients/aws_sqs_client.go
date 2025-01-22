@@ -2,31 +2,25 @@ package clients
 
 import (
 	"context"
-	"log"
-	"tech-challenge-hackaton/internal/infra/config"
+	"tech-challenge-hackaton/internal/utils"
 
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 )
 
-func NewSQSClient() *sqs.Client {
-	cfg, err := awsconfig.LoadDefaultConfig(
-		context.Background(),
-		awsconfig.WithRegion(config.AWS_REGION),
-		awsconfig.WithCredentialsProvider(
-			credentials.NewStaticCredentialsProvider(
-				config.AWS_ACCESS_KEY_ID, config.AWS_SECRET_ACCESS_KEY, ""),
+func NewSQSClient(AWSRegion, AWSAcessKeyID, AWSSercretAccessKey string, AWSBaseEndpoint *string) *sqs.Client {
+	cfg := utils.Must(
+		awsconfig.LoadDefaultConfig(
+			context.Background(),
+			awsconfig.WithRegion(AWSRegion),
+			awsconfig.WithCredentialsProvider(
+				credentials.NewStaticCredentialsProvider(AWSAcessKeyID, AWSSercretAccessKey, ""),
+			),
 		),
 	)
-	if err != nil {
-		log.Println("Unable to create AWS SQS client", err)
-		panic(1)
-	}
-
 	client := sqs.NewFromConfig(cfg, func(o *sqs.Options) {
-		o.BaseEndpoint = config.AWS_BASE_ENDPOINT
+		o.BaseEndpoint = AWSBaseEndpoint
 	})
-
 	return client
 }

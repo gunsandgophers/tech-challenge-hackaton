@@ -1,12 +1,11 @@
 package app
 
 import (
-	"tech-challenge-hackaton/internal/infra/controllers"
+	"tech-challenge-hackaton/internal/web/controllers"
 	httpserver "tech-challenge-hackaton/internal/infra/http"
 )
 
 func registerRouters(app *APIApp) {
-
 	videoController := controllers.
 		NewUploadVideoController(app.storageService, app.videoRepository, app.queueService)
 
@@ -15,5 +14,4 @@ func registerRouters(app *APIApp) {
 
 	// videos
 	app.httpServer.(httpserver.HTTPRoutes).POST("/upload-video", videoController.UploadVideos)
-
 }

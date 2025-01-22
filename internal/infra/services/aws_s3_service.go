@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"mime/multipart"
-	"tech-challenge-hackaton/internal/infra/config"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
@@ -13,10 +12,11 @@ import (
 
 type AwsS3Service struct {
 	client *s3.Client
+	awsBucketName string
 }
 
-func NewAwsS3Service(client *s3.Client) *AwsS3Service {
-	return &AwsS3Service{client: client}
+func NewAwsS3Service(client *s3.Client, awsBucketName string) *AwsS3Service {
+	return &AwsS3Service{client: client, awsBucketName: awsBucketName}
 }
 
 func (s *AwsS3Service) UploadFile(filename string, file multipart.File) (string, error) {
@@ -25,7 +25,7 @@ func (s *AwsS3Service) UploadFile(filename string, file multipart.File) (string,
 	key := fmt.Sprint("video/", filename)
 
 	_, err := uploader.Upload(context.Background(), &s3.PutObjectInput{
-		Bucket: aws.String(config.AWS_BUCKERT_NAME),
+		Bucket: aws.String(s.awsBucketName),
 		Key:    aws.String(key),
 		Body:   file,
 	})
@@ -33,5 +33,5 @@ func (s *AwsS3Service) UploadFile(filename string, file multipart.File) (string,
 		return "", nil
 	}
 
-	return fmt.Sprint(config.AWS_BUCKERT_NAME, "/", key), nil
+	return fmt.Sprint(s.awsBucketName, "/", key), nil
 }

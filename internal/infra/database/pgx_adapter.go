@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"tech-challenge-hackaton/internal/infra/config"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -13,10 +12,10 @@ type PGXConnectionAdapter struct {
 	pool *pgxpool.Pool
 }
 
-func NewPGXConnectionAdapter() *PGXConnectionAdapter {
+func NewPGXConnectionAdapter(DBHost, DBPort, DBUser, DBPassword, DBName string) *PGXConnectionAdapter {
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
 		"password=%s dbname=%s",
-		config.DB_HOST, config.DB_POST, config.DB_USER, config.DB_PASSWORD, config.DB_NAME)
+		DBHost, DBPort, DBUser, DBPassword, DBName)
 
 	pool, err := pgxpool.New(context.Background(), psqlInfo)
 	if err != nil {

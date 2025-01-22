@@ -3,11 +3,19 @@ package videos
 import (
 	"fmt"
 	"mime/multipart"
-	"tech-challenge-hackaton/internal/core/dtos"
-	"tech-challenge-hackaton/internal/core/entities"
-	"tech-challenge-hackaton/internal/core/repositories"
-	"tech-challenge-hackaton/internal/core/services"
+	"tech-challenge-hackaton/internal/application/entities"
+	"tech-challenge-hackaton/internal/application/repositories"
+	"tech-challenge-hackaton/internal/application/services"
 )
+
+type VideoUploadDTO struct {
+	ID       string `json:"id"`
+	Filename string `json:"filename"`
+}
+
+type VideoUploadResponseDTO struct {
+	Videos []*VideoUploadDTO `json:"videos"`
+}
 
 type UploadVideoUseCase struct {
 	storageService  services.StorageServiceInterface
@@ -29,7 +37,7 @@ func NewUploadVideoUseCase(
 
 func (uv *UploadVideoUseCase) Execute(
 	filename string, file multipart.File, mimeType string,
-) (*dtos.VideoUploadDTO, error) {
+) (*VideoUploadDTO, error) {
 
 	video, err := entities.CreateVideo(filename, entities.MIMEType(mimeType))
 	if err != nil {
@@ -55,5 +63,5 @@ func (uv *UploadVideoUseCase) Execute(
 		return nil, err
 	}
 
-	return &dtos.VideoUploadDTO{ID: video.GetID(), Filename: newFilename}, nil
+	return &VideoUploadDTO{ID: video.GetID(), Filename: newFilename}, nil
 }
