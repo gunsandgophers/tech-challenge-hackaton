@@ -11,10 +11,12 @@ type configuration struct {
 	DBPassword string `mapstructure:"DB_PASSWORD"`
 	DBName     string `mapstructure:"DB_NAME"`
 
-	AWSAccessKeyID     string `mapstructure:"AWS_ACCESS_KEY_ID"`
-	AWSSecretAccessKey string `mapstructure:"AWS_SECRET_ACCESS_KEY"`
-	AWSRegion          string `mapstructure:"AWS_REGION"`
-	AWSBucketName     string `mapstructure:"AWS_BUCKET_NAME"`
+	AWSAccessKeyID     string  `mapstructure:"AWS_ACCESS_KEY_ID"`
+	AWSSecretAccessKey string  `mapstructure:"AWS_SECRET_ACCESS_KEY"`
+	AWSRegion          string  `mapstructure:"AWS_REGION"`
+	AWSAppClientID     string  `mapstructure:"AWS_APP_CLIENT_ID"`
+	AWSUserPoolID      string  `mapstructure:"AWS_USER_POOL_ID"`
+	AWSBucketName      string  `mapstructure:"AWS_BUCKET_NAME"`
 	AWSBaseEndpoint    *string `mapstructure:"AWS_BASE_ENDPOINT"`
 
 	QueueProcessVideo           string `mapstructure:"QUEUE_PROCESS_VIDEO"`
@@ -36,4 +38,3 @@ func LoadConfig(path string, fileName string) (*configuration, error) {
 	}
 	return cfg, nil
 }
-
