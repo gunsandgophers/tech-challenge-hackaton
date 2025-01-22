@@ -2,32 +2,26 @@ package clients
 
 import (
 	"context"
-	"log"
-	"tech-challenge-hackaton/internal/infra/config"
+	"tech-challenge-hackaton/internal/utils"
 
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-func NewS3Client() *s3.Client {
-	cfg, err := awsconfig.LoadDefaultConfig(
-		context.Background(),
-		awsconfig.WithRegion(config.AWS_REGION),
-		awsconfig.WithCredentialsProvider(
-			credentials.NewStaticCredentialsProvider(
-				config.AWS_ACCESS_KEY_ID, config.AWS_SECRET_ACCESS_KEY, ""),
+func NewS3Client(AWSRegion, AWSAcessKeyID, AWSSercretAccessKey string, AWSBaseEndpoint *string) *s3.Client {
+	cfg := utils.Must(
+		awsconfig.LoadDefaultConfig(
+			context.Background(),
+			awsconfig.WithRegion(AWSRegion),
+			awsconfig.WithCredentialsProvider(
+				credentials.NewStaticCredentialsProvider(AWSAcessKeyID, AWSSercretAccessKey, ""),
+			),
 		),
 	)
-	if err != nil {
-		log.Println("Unable to create AWS S3 client", err)
-		panic(1)
-	}
-
 	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
 		o.UsePathStyle = true
-		o.BaseEndpoint = config.AWS_BASE_ENDPOINT
+		o.BaseEndpoint = AWSBaseEndpoint
 	})
-
 	return client
 }

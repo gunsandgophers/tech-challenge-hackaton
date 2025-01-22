@@ -1,8 +1,8 @@
 package app
 
 import (
-	"tech-challenge-hackaton/internal/core/repositories"
-	"tech-challenge-hackaton/internal/core/services"
+	"tech-challenge-hackaton/internal/application/repositories"
+	"tech-challenge-hackaton/internal/application/services"
 	httpserver "tech-challenge-hackaton/internal/infra/http"
 )
 

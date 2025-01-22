@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"tech-challenge-hackaton/internal/core/entities"
+	"tech-challenge-hackaton/internal/application/entities"
 	"tech-challenge-hackaton/internal/infra/database"
 )
 

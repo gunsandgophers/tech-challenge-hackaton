@@ -14,7 +14,7 @@ RUN go mod download
 RUN go get github.com/githubnemo/CompileDaemon
 RUN go install github.com/githubnemo/CompileDaemon
 
-ENTRYPOINT CompileDaemon --build="go build -o build/api internal/infra/command/api.go" --command=./build/api
+ENTRYPOINT CompileDaemon --build="go build -o build/api cmd/api/main.go" --command=./build/api
 
 # Optional:
 # To bind to a TCP port, runtime parameters must be supplied to the docker command.
