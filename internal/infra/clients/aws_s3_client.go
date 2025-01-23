@@ -18,7 +18,7 @@ type S3Client struct {
 }
 
 func NewS3Client(
-	awsRegion, awsAcessKeyID, awsSercretAccessKey string,
+	awsRegion, awsAccessKeyID, awsSercretAccessKey string,
 	awsBaseEndpoint *string,
 ) *S3Client {
 	cfg := utils.Must(
@@ -26,7 +26,7 @@ func NewS3Client(
 			context.Background(),
 			awsconfig.WithRegion(awsRegion),
 			awsconfig.WithCredentialsProvider(
-				credentials.NewStaticCredentialsProvider(awsAcessKeyID, awsSercretAccessKey, ""),
+				credentials.NewStaticCredentialsProvider(awsAccessKeyID, awsSercretAccessKey, ""),
 			),
 		),
 	)
