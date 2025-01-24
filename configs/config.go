@@ -24,11 +24,12 @@ type configuration struct {
 	AWSSQSAppClientID     string  `mapstructure:"AWS_SQS_APP_CLIENT_ID"`
 	AWSSQSBaseEndpoint    *string `mapstructure:"AWS_SQS_BASE_ENDPOINT"`
 
-	AWSCognitoAccessKeyID     string  `mapstructure:"AWS_COGNITO_ACCESS_KEY_ID"`
-	AWSCognitoSecretAccessKey string  `mapstructure:"AWS_COGNITO_SECRET_ACCESS_KEY"`
-	AWSCognitoRegion          string  `mapstructure:"AWS_COGNITO_REGION"`
-	AWSCognitoAppClientID     string  `mapstructure:"AWS_COGNITO_APP_CLIENT_ID"`
-	AWSCognitoUserPoolID      string  `mapstructure:"AWS_COGNITO_USER_POOL_ID"`
+	AWSCognitoAccessKeyID     string `mapstructure:"AWS_COGNITO_ACCESS_KEY_ID"`
+	AWSCognitoSecretAccessKey string `mapstructure:"AWS_COGNITO_SECRET_ACCESS_KEY"`
+	AWSCognitoRegion          string `mapstructure:"AWS_COGNITO_REGION"`
+	AWSCognitoAppClientID     string `mapstructure:"AWS_COGNITO_APP_CLIENT_ID"`
+	AWSCognitoAppClientSecret string `mapstructure:"AWS_COGNITO_APP_CLIENT_SECRET"`
+	AWSCognitoUserPoolID      string `mapstructure:"AWS_COGNITO_USER_POOL_ID"`
 
 	QueueProcessVideo           string `mapstructure:"QUEUE_PROCESS_VIDEO"`
 	DeadLetterQueueProcessVideo string `mapstructure:"DEAD_LETTER_QUEUE_PROCESS_VIDEO"`

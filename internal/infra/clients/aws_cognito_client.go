@@ -2,6 +2,9 @@ package clients
 
 import (
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 	"tech-challenge-hackaton/internal/utils"
 	"time"
@@ -15,17 +18,24 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+type CognitoUser struct {
+	Username string
+	Email string
+	Name string
+}
+
 type CognitoClient struct {
 	client *cognito.Client
 	awsRegion string
 	appClientID string
+	appClientSecret string
 	userPoolID string
 	jwks *keyfunc.JWKS
 }
 
 func NewCognitoClient(
 	awsRegion, awsAccessKeyID, awsSercretAccessKey string,
-	appClientID string,
+	appClientID, appClientSecret string,
 	userPoolID string,
 ) *CognitoClient {
 	cfg := utils.Must(
@@ -41,6 +51,7 @@ func NewCognitoClient(
 		client: cognito.NewFromConfig(cfg),
 		awsRegion: awsRegion,
 		appClientID: appClientID,
+		appClientSecret: appClientSecret,
 		userPoolID: userPoolID,
 	}
 	cognitoClient.updateJWKS()
@@ -56,13 +67,29 @@ func (c *CognitoClient) updateJWKS() {
 	c.jwks = utils.Must(keyfunc.Get(jwksURL, keyfunc.Options{}))
 }
 
+func (c *CognitoClient) calculateSecretHash(username string) (string, error) {
+	message := username + c.appClientID
+	h := hmac.New(sha256.New, []byte(c.appClientSecret))
+	_, err := h.Write([]byte(message))
+	if err != nil {
+		return "", fmt.Errorf("erro ao gerar HMAC: %v", err)
+	}
+	secretHash := base64.StdEncoding.EncodeToString(h.Sum(nil))
+	return secretHash, nil
+}
+
 func (c *CognitoClient) Login(username string, password string) (string, error) {
+	secretHash, err := c.calculateSecretHash(username)
+	if err != nil {
+		return "", err
+	}
 	authInput := &cognito.InitiateAuthInput{
 		AuthFlow: types.AuthFlowTypeUserPasswordAuth,
 		ClientId: aws.String(c.appClientID),
 		AuthParameters: map[string]string{
 			"USERNAME": username,
 			"PASSWORD": password,
+			"SECRET_HASH": secretHash,
 		},
 	}
 	result, err := c.client.InitiateAuth(context.Background(), authInput)
@@ -72,16 +99,26 @@ func (c *CognitoClient) Login(username string, password string) (string, error) 
 	return *result.AuthenticationResult.AccessToken, nil
 }
 
-// TODO: Deve retornar todos os dados uteis do client
-func (c *CognitoClient) GetUser(tokenString string) (string, error) {
+func (c *CognitoClient) GetUser(tokenString string) (*CognitoUser, error) {
 	input := &cognito.GetUserInput{
 		AccessToken: aws.String(tokenString),
 	}
 	output, err := c.client.GetUser(context.Background(), input)
 	if err != nil {
-		return "", nil
+		return nil, err
 	}
-	return *output.Username, nil
+
+	user := &CognitoUser{Username: *output.Username}
+	for _, v := range output.UserAttributes {
+		switch *v.Name {
+		case "name":
+			user.Name = *v.Value
+		case "email":
+			user.Email = *v.Value
+		}
+	}
+
+	return user, nil
 }
 
 func (c *CognitoClient) ValidateAccessToken(tokenString string) (*jwt.Token, error) {

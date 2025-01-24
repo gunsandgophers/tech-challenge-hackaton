@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	config := utils.Must(configs.LoadConfig("../.", ".env.dev"))
+	config := utils.Must(configs.LoadConfig("../.", ".env"))
 	// HTTP Server and Database Connection
 	httpServer := httpserver.NewGinHTTPServerAdapter()
 	connection := database.NewPGXConnectionAdapter(
@@ -40,6 +40,7 @@ func main() {
 		config.AWSCognitoAccessKeyID,
 		config.AWSCognitoSecretAccessKey,
 		config.AWSCognitoAppClientID,
+		config.AWSCognitoAppClientSecret,
 		config.AWSCognitoUserPoolID,
 	)
 	// SERVICES

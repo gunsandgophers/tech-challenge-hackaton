@@ -1,8 +1,8 @@
 start:
-	docker compose --env-file ./.env.dev up -d
+	docker compose --env-file ./.env up -d
 
 stop:
-	docker compose --env-file ./.env.dev down
+	docker compose --env-file ./.env down
 
 logs/app:
 	docker compose logs -f --no-log-prefix app

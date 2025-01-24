@@ -17,7 +17,6 @@ func NewAWSCognitoService(client *clients.CognitoClient) *AWSCognitoService {
 	}
 }
 
-// TODO: Receber DTO UserLoginDTO e retornar AccessToken tipo
 func (um *AWSCognitoService) Login(username string, password string) (string, error) {
 	return um.client.Login(username, password)
 }
@@ -42,8 +41,14 @@ func (um *AWSCognitoService) ValidateAccessTokenByAuthHeader(authHeader string) 
 	return token, nil
 }
 
-// TODO: Deve retornar um UserDTO
-func (um *AWSCognitoService) GetUser(token *services.UserAccessToken) (string, error) {
-	// TODO: Deve retornar todos os dados uteis do client
-	return um.client.GetUser(token.TokenString)
+func (um *AWSCognitoService) GetUser(token *services.UserAccessToken) (*services.UserDTO, error) {
+	user, err := um.client.GetUser(token.TokenString)
+	if err != nil {
+		return nil, err
+	}
+	return &services.UserDTO{
+		ID: user.Username,
+		Name: user.Name,
+		Email: user.Email,
+	}, nil
 }

@@ -13,17 +13,20 @@ type UploadVideoController struct {
 	storageService  services.StorageServiceInterface
 	videoRepository repositories.VideoRepositoryInterface
 	queueService    services.QueueServiceInterface
+	userManagerService    services.UserManagerServiceInterface
 }
 
 func NewUploadVideoController(
 	storageService services.StorageServiceInterface,
 	videoRepository repositories.VideoRepositoryInterface,
 	queueService services.QueueServiceInterface,
+	userManagerService    services.UserManagerServiceInterface,
 ) *UploadVideoController {
 	return &UploadVideoController{
 		storageService:  storageService,
 		videoRepository: videoRepository,
 		queueService:    queueService,
+		userManagerService: userManagerService,
 	}
 }
 
@@ -65,3 +68,4 @@ func (cc *UploadVideoController) UploadVideos(c httpserver.HTTPContext) {
 
 	sendSuccess(c, http.StatusCreated, "Upload finished", response)
 }
+

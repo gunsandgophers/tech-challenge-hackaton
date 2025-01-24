@@ -8,8 +8,14 @@ type UserAccessToken struct {
 	TokenJWT *jwt.Token
 }
 
+type UserDTO struct {
+	ID string
+	Name string
+	Email string
+}
+
 type UserManagerServiceInterface interface {
 	Login(username string, password string) (string, error)
 	ValidateAccessTokenByAuthHeader(authHeader string) (*UserAccessToken, error)
-	GetUser(token *UserAccessToken) (string, error)
+	GetUser(token *UserAccessToken) (*UserDTO, error)
 }
