@@ -15,7 +15,7 @@ type SQSClient struct {
 }
 
 func NewSQSClient(
-	awsRegion, awsAcessKeyID, awsSercretAccessKey string,
+	awsRegion, awsAccessKeyID, awsSercretAccessKey string,
 	awsBaseEndpoint *string,
 ) *SQSClient {
 
@@ -24,7 +24,7 @@ func NewSQSClient(
 			context.Background(),
 			awsconfig.WithRegion(awsRegion),
 			awsconfig.WithCredentialsProvider(
-				credentials.NewStaticCredentialsProvider(awsAcessKeyID, awsSercretAccessKey, ""),
+				credentials.NewStaticCredentialsProvider(awsAccessKeyID, awsSercretAccessKey, ""),
 			),
 		),
 	)

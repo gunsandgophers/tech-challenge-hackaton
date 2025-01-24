@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	config := utils.Must(configs.LoadConfig("../.", ".env.dev"))
+	config := utils.Must(configs.LoadConfig("../.", ".env"))
 	// HTTP Server and Database Connection
 	httpServer := httpserver.NewGinHTTPServerAdapter()
 	connection := database.NewPGXConnectionAdapter(
@@ -24,24 +24,27 @@ func main() {
 	)
 	// CLIENTS
 	storageClient := clients.NewS3Client(
-		config.AWSRegion,
-		config.AWSAccessKeyID,
-		config.AWSSecretAccessKey,
-		config.AWSBaseEndpoint,
+		config.AWSS3Region,
+		config.AWSS3AccessKeyID,
+		config.AWSS3SecretAccessKey,
+		config.AWSS3BaseEndpoint,
 	)
 	queueClient := clients.NewSQSClient(
-		config.AWSRegion,
-		config.AWSAccessKeyID,
-		config.AWSSecretAccessKey,
-		config.AWSBaseEndpoint,
+		config.AWSSQSRegion,
+		config.AWSSQSAccessKeyID,
+		config.AWSSQSSecretAccessKey,
+		config.AWSSQSBaseEndpoint,
 	)
 	cognitoClient := clients.NewCognitoClient(
-		config.AWSRegion,
-		config.AWSAppClientID,
-		config.AWSUserPoolID,
+		config.AWSCognitoRegion,
+		config.AWSCognitoAccessKeyID,
+		config.AWSCognitoSecretAccessKey,
+		config.AWSCognitoAppClientID,
+		config.AWSCognitoAppClientSecret,
+		config.AWSCognitoUserPoolID,
 	)
 	// SERVICES
-	storageService := services.NewAwsS3Service(storageClient, config.AWSBucketName)
+	storageService := services.NewAwsS3Service(storageClient, config.AWSS3BucketName)
 	queueService := services.NewAwsSQSService(queueClient, config.QueueProcessVideo)
 	userManagerService := services.NewAWSCognitoService(cognitoClient)
 	// REPOSITORIES

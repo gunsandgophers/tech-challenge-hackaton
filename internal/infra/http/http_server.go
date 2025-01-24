@@ -22,6 +22,7 @@ type HTTPRoutes interface {
 
 type HTTPContext interface {
 	Header(key, value string)
+	GetHeader(key string) string
 	JSON(code int, obj any)
 	BindJSON(obj any) error
 	Param(key string) string

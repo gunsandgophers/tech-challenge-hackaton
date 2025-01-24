@@ -3,7 +3,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile.dev
-    env_file: ./.env.dev
+    env_file: ./.env
     restart: always
     ports:
       - "3003:8080"
@@ -19,7 +19,7 @@ services:
     ports:
       - "127.0.0.1:4566:4566" # LocalStack Gateway
       - "127.0.0.1:4510-4559:4510-4559" # external services port range
-    env_file: ./.env.dev
+    env_file: ./.env
     environment:
       - DEBUG=1 # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
       - SERVICES=s3,sqs
