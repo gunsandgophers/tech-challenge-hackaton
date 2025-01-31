@@ -64,6 +64,10 @@ func (v *Video) GetID() string {
 	return v.id
 }
 
+func (v *Video) GetUserID() string {
+	return v.userID
+}
+
 func (v *Video) GetFilename() string {
 	return v.filename
 }

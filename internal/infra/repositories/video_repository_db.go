@@ -15,12 +15,13 @@ func NewVideoRepositoryDB(conn database.ConnectionDB) *VideoRepositoryDB {
 
 func (r *VideoRepositoryDB) Insert(video *entities.Video) error {
 	sql := `
-	INSERT INTO videos(id, filename, status, mimeType)
-	VALUES ($1, $2, $3, $4);
+	INSERT INTO videos(id, user_id, filename, status, mimeType)
+	VALUES ($1, $2, $3, $4, $5);
 	`
 	return r.conn.Exec(
 		sql,
 		video.GetID(),
+		video.GetUserID(),
 		video.GetFilename(),
 		video.GetStatus().String(),
 		video.GetMimeType().String(),
