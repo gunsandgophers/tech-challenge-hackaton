@@ -74,3 +74,25 @@ func (cc *VideoController) Upload(c httpserver.HTTPContext) {
 	response := videos.VideoUploadResponseDTO{Videos: videosUpload}
 	sendSuccess(c, http.StatusCreated, "Upload finished", response)
 }
+
+func (cc *VideoController) List(c httpserver.HTTPContext) {
+	token, err := cc.userManagerService.ValidateAccessTokenByAuthHeader(c.GetHeader("Authorization"))
+	if err != nil {
+		sendError(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+	user, err := cc.userManagerService.GetUser(token)
+	if err != nil {
+		sendError(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	listVideos := videos.NewListVideosUseCase(cc.videoRepository)
+	output, err := listVideos.Execute(user.ID)
+	if err != nil {
+		sendError(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	sendSuccess(c, http.StatusOK, "list videos", output)
+}

@@ -20,4 +20,5 @@ func registerRouters(app *APIApp) {
 	app.httpServer.(httpserver.HTTPRoutes).POST("/auth/login", authController.Login)
 	app.httpServer.(httpserver.HTTPRoutes).GET("/auth/protected", authController.EndpointProtectedByAccessToken)
 	app.httpServer.(httpserver.HTTPRoutes).POST("/videos/upload", videoController.Upload)
+	// app.httpServer.(httpserver.HTTPRoutes).POST("/videos/download", videoController.Download)
 }
