@@ -11,6 +11,8 @@ type AwsS3Service struct {
 	awsBucketName string
 }
 
+const videoDir string = "videos"
+
 func NewAwsS3Service(client *clients.S3Client, awsBucketName string) *AwsS3Service {
 	return &AwsS3Service{
 		client: client,
@@ -18,12 +20,11 @@ func NewAwsS3Service(client *clients.S3Client, awsBucketName string) *AwsS3Servi
 	}
 }
 
-func (s *AwsS3Service) UploadVideo(filename string, file multipart.File) (string, error) {
-	key := fmt.Sprint("video/", filename)
+func (s *AwsS3Service) UploadVideo(videoID, filename string, file multipart.File) (string, error) {
+	filenameComplete := fmt.Sprintf("%s/%s-%s", videoDir, videoID, filename)
 	return s.client.UploadFile(
-		filename,
+		filenameComplete,
 		file,
-		key,
 		s.awsBucketName,
 	)
 }

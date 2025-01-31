@@ -5,5 +5,5 @@ import (
 )
 
 type StorageServiceInterface interface {
-	UploadVideo(filename string, file multipart.File) (string, error)
+	UploadVideo(videoID, filename string, file multipart.File) (string, error)
 }

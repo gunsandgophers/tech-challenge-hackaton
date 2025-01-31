@@ -1,81 +1,63 @@
 package entities
 
 import (
-	"tech-challenge-hackaton/internal/application/errors"
+	"errors"
+	"tech-challenge-hackaton/internal/application/vo"
+	"tech-challenge-hackaton/internal/utils"
 
 	"github.com/google/uuid"
 )
 
-// TODO: Mandar isso para VO
-type (
-	VideoStatus string
-	MIMEType    string
-)
-
-func (s VideoStatus) String() string {
-	return string(s)
-}
-
-func (s MIMEType) String() string {
-	return string(s)
-}
-
-func (s MIMEType) IsValid() bool {
-
-	for _, t := range MIME_TYPES {
-		if t == s {
-			return true
-		}
-	}
-
-	return false
-}
-
-const (
-	VIDEO_STATUS_AWAITING VideoStatus = "AWAITING"
-	VIDEO_STATUS_FINISHED VideoStatus = "FINISHED"
-	VIDEO_STATUS_CANCELED VideoStatus = "CANCELED"
-)
-
-const (
-	MIME_TYPE_MPEG MIMEType = "video/mpeg"
-	MIME_TYPE_MP4  MIMEType = "video/mp4"
-)
-
-var MIME_TYPES = []MIMEType{MIME_TYPE_MPEG, MIME_TYPE_MP4}
-
 type Video struct {
 	id       string
-	status   VideoStatus
+	userID   string
+	status   vo.VideoStatus
 	filename string
-	mimeType MIMEType
+	mimeType vo.MIMEType
 }
 
-func CreateVideo(filename string, mimeType MIMEType) (*Video, error) {
+func CreateVideo(userID, filename string, mimeType vo.MIMEType) (*Video, error) {
 	return RestoreVideo(
 		uuid.NewString(),
-		VIDEO_STATUS_AWAITING,
+		userID,
+		vo.VideoStatusAwaiting,
 		filename,
 		mimeType,
 	)
 }
 
-func RestoreVideo(
-	id string,
-	status VideoStatus,
-	filename string,
-	mimeType MIMEType,
-) (*Video, error) {
-	if mimeType.IsValid() {
-		return &Video{
-			id:       id,
-			status:   status,
-			filename: filename,
-			mimeType: mimeType,
-		}, nil
+func RestoreVideo(id, userID string, status vo.VideoStatus, filename string, mimeType vo.MIMEType) (*Video, error) {
+	video := &Video{
+		id:       id,
+		userID:   userID,
+		status:   status,
+		filename: filename,
+		mimeType: mimeType,
 	}
+	err := video.Validate()
+	if err != nil {
+		return nil, err
+	}
+	return video, nil
+}
 
-	return nil, errors.ErrMimeTypeInvalid
+func (v *Video) Validate() error {
+	if !utils.AssertNotEmpty(v.id) {
+		return errors.New("video id invalid")
+	}
+	if !utils.AssertNotEmpty(v.userID) {
+		return errors.New("user id invalid")
+	}
+	if !utils.AssertNotEmpty(v.filename) {
+		return errors.New("filename invalid")
+	}
+	if err := v.status.Validate(); err != nil {
+		return err
+	}
+	if err := v.mimeType.Validate(); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (v *Video) GetID() string {
@@ -86,10 +68,10 @@ func (v *Video) GetFilename() string {
 	return v.filename
 }
 
-func (v *Video) GetStatus() VideoStatus {
+func (v *Video) GetStatus() vo.VideoStatus {
 	return v.status
 }
 
-func (v *Video) GetMimeType() MIMEType {
+func (v *Video) GetMimeType() vo.MIMEType {
 	return v.mimeType
 }
