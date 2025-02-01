@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"tech-challenge-hackaton/internal/application/repositories"
@@ -95,4 +96,30 @@ func (cc *VideoController) List(c httpserver.HTTPContext) {
 	}
 
 	sendSuccess(c, http.StatusOK, "list videos", output)
+}
+
+func (cc *VideoController) Download(c httpserver.HTTPContext) {
+	token, err := cc.userManagerService.ValidateAccessTokenByAuthHeader(c.GetHeader("Authorization"))
+	if err != nil {
+		sendError(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+	user, err := cc.userManagerService.GetUser(token)
+	if err != nil {
+		sendError(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	videoID := c.Param("id")
+	downloadVideo := videos.NewDownloadVideoFramesUseCase(cc.storageService, cc.videoRepository)
+	output, err := downloadVideo.Execute(videoID, user.ID)
+	if err != nil {
+		sendError(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	c.Header("Content-Disposition", "attachment; filename="+output.Filename)
+	c.Header("Content-Type", output.MIMEType)
+	c.Header("Accept-Length", fmt.Sprintf("%d", len(output.Content)))
+	c.Data(http.StatusOK, output.MIMEType, output.Content)
 }

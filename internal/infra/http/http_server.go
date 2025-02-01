@@ -28,6 +28,7 @@ type HTTPContext interface {
 	Param(key string) string
 	DefaultQuery(key, defaultValue string) string
 	MultipartForm() (*multipart.Form, error)
+	Data(code int, contentType string, data []byte)
 }
 
 type HTTPHandlerFunc func(HTTPContext)

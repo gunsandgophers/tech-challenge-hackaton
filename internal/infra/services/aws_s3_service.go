@@ -54,6 +54,11 @@ func (s *AwsS3Service) DownloadVideo(videoID, filename string) (string, error) {
 	)
 }
 
+func (s *AwsS3Service) DownloadZipFrames(videoID string) ([]byte, error) {
+	filenameCompleteExt := fmt.Sprintf("%s/%s.zip", s.GetExternalFramesDir(), videoID)
+	return s.client.GetFile(filenameCompleteExt, s.awsBucketName)
+}
+
 func (s *AwsS3Service) UploadZipFrames(filename string, file multipart.File) (string, error) {
 	filenameCompleteExt := fmt.Sprintf("%s/%s", s.GetExternalFramesDir(), filename)
 	return s.client.UploadFile(

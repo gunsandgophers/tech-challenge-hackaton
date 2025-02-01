@@ -88,3 +88,13 @@ func (v *Video) GetMimeType() vo.MIMEType {
 func (v *Video) Finished() {
 	v.status = vo.VideoStatusFinished
 }
+
+func (v *Video) IsAvaiableToDownload(userID string) error {
+	if v.GetUserID() != userID {
+		return fmt.Errorf("User is not the video owner")
+	}
+	if v.GetStatus() != vo.VideoStatusFinished {
+		return fmt.Errorf("frames not avaiable yet")
+	}
+	return nil
+}
