@@ -1,11 +1,11 @@
 package videos
 
 import (
-	"fmt"
 	"mime/multipart"
 	"tech-challenge-hackaton/internal/application/entities"
 	"tech-challenge-hackaton/internal/application/repositories"
 	"tech-challenge-hackaton/internal/application/services"
+	"tech-challenge-hackaton/internal/application/vo"
 )
 
 type VideoUploadDTO struct {
@@ -36,30 +36,26 @@ func NewUploadVideoUseCase(
 }
 
 func (uv *UploadVideoUseCase) Execute(
-	filename string, file multipart.File, mimeType string,
+	filename string,
+	file multipart.File,
+	mimeType string,
+	userID string,
 ) (*VideoUploadDTO, error) {
-
-	video, err := entities.CreateVideo(filename, entities.MIMEType(mimeType))
+	video, err := entities.CreateVideo(userID, filename, vo.MIMEType(mimeType))
 	if err != nil {
 		return nil, err
 	}
 
-	newFilename, err := uv.storageService.UploadVideo(
-		fmt.Sprint(video.GetID(), "_", video.GetFilename()), file)
+	newFilename, err := uv.storageService.UploadVideo(video.GetID(), video.GetFilename(), file)
 	if err != nil {
 		return nil, err
 	}
 
-	video, _ = entities.
-		RestoreVideo(video.GetID(), video.GetStatus(), newFilename, video.GetMimeType())
-
-	err = uv.videoRepository.Insert(video)
-	if err != nil {
+	if err := uv.videoRepository.Insert(video); err != nil {
 		return nil, err
 	}
 
-	err = uv.queueService.SendVideoForProcessing(video)
-	if err != nil {
+	if err := uv.queueService.SendVideoForProcessing(video); err != nil {
 		return nil, err
 	}
 

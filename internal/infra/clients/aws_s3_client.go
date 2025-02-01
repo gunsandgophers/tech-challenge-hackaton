@@ -40,9 +40,8 @@ func NewS3Client(
 }
 
 func (s *S3Client) UploadFile(
-	filename string,
-	file multipart.File,
 	key string,
+	file multipart.File,
 	awsBucketName string,
 ) (string, error) {
 	uploader := manager.NewUploader(s.client)

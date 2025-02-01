@@ -32,7 +32,9 @@ type configuration struct {
 	AWSCognitoUserPoolID      string `mapstructure:"AWS_COGNITO_USER_POOL_ID"`
 
 	QueueProcessVideo           string `mapstructure:"QUEUE_PROCESS_VIDEO"`
+	QueueResultVideo            string `mapstructure:"QUEUE_RESULT_VIDEO"`
 	DeadLetterQueueProcessVideo string `mapstructure:"DEAD_LETTER_QUEUE_PROCESS_VIDEO"`
+	DeadLetterQueueResultVideo string `mapstructure:"DEAD_LETTER_QUEUE_RESULT_VIDEO"`
 }
 
 func LoadConfig(path string, fileName string) (*configuration, error) {

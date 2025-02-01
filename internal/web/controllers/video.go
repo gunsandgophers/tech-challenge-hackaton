@@ -9,20 +9,20 @@ import (
 	httpserver "tech-challenge-hackaton/internal/infra/http"
 )
 
-type UploadVideoController struct {
+type VideoController struct {
 	storageService  services.StorageServiceInterface
 	videoRepository repositories.VideoRepositoryInterface
 	queueService    services.QueueServiceInterface
 	userManagerService    services.UserManagerServiceInterface
 }
 
-func NewUploadVideoController(
+func NewVideoController(
 	storageService services.StorageServiceInterface,
 	videoRepository repositories.VideoRepositoryInterface,
 	queueService services.QueueServiceInterface,
 	userManagerService    services.UserManagerServiceInterface,
-) *UploadVideoController {
-	return &UploadVideoController{
+) *VideoController {
+	return &VideoController{
 		storageService:  storageService,
 		videoRepository: videoRepository,
 		queueService:    queueService,
@@ -30,7 +30,18 @@ func NewUploadVideoController(
 	}
 }
 
-func (cc *UploadVideoController) UploadVideos(c httpserver.HTTPContext) {
+func (cc *VideoController) Upload(c httpserver.HTTPContext) {
+	token, err := cc.userManagerService.ValidateAccessTokenByAuthHeader(c.GetHeader("Authorization"))
+	if err != nil {
+		sendError(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+	user, err := cc.userManagerService.GetUser(token)
+	if err != nil {
+		sendError(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	form, err := c.MultipartForm()
 	if err != nil {
 		sendError(c, http.StatusBadRequest, err.Error())
@@ -44,9 +55,7 @@ func (cc *UploadVideoController) UploadVideos(c httpserver.HTTPContext) {
 	)
 
 	videosUpload := []*videos.VideoUploadDTO{}
-
 	for _, video := range form.File {
-
 		filename := video[0].Filename
 		header := video[0].Header
 
@@ -55,17 +64,35 @@ func (cc *UploadVideoController) UploadVideos(c httpserver.HTTPContext) {
 			log.Println("Error on open file - ", err)
 		}
 
-		videoUpload, err := usecase.Execute(filename, file, header.Get("Content-Type"))
+		videoUpload, err := usecase.Execute(filename, file, header.Get("Content-Type"), user.ID)
 		if err != nil {
 			log.Println("Error on upload file - ", err)
 		} else {
 			videosUpload = append(videosUpload, videoUpload)
 		}
-
 	}
-
 	response := videos.VideoUploadResponseDTO{Videos: videosUpload}
-
 	sendSuccess(c, http.StatusCreated, "Upload finished", response)
 }
 
+func (cc *VideoController) List(c httpserver.HTTPContext) {
+	token, err := cc.userManagerService.ValidateAccessTokenByAuthHeader(c.GetHeader("Authorization"))
+	if err != nil {
+		sendError(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+	user, err := cc.userManagerService.GetUser(token)
+	if err != nil {
+		sendError(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	listVideos := videos.NewListVideosUseCase(cc.videoRepository)
+	output, err := listVideos.Execute(user.ID)
+	if err != nil {
+		sendError(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	sendSuccess(c, http.StatusOK, "list videos", output)
+}

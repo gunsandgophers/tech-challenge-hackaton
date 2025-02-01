@@ -2,6 +2,7 @@ package main
 
 import (
 	"tech-challenge-hackaton/configs"
+	"tech-challenge-hackaton/internal/consumers"
 	"tech-challenge-hackaton/internal/infra/clients"
 	"tech-challenge-hackaton/internal/infra/database"
 	httpserver "tech-challenge-hackaton/internal/infra/http"
@@ -22,6 +23,7 @@ func main() {
 		config.DBPassword,
 		config.DBName,
 	)
+	defer connection.Close()
 	// CLIENTS
 	storageClient := clients.NewS3Client(
 		config.AWSS3Region,
@@ -45,10 +47,12 @@ func main() {
 	)
 	// SERVICES
 	storageService := services.NewAwsS3Service(storageClient, config.AWSS3BucketName)
-	queueService := services.NewAwsSQSService(queueClient, config.QueueProcessVideo)
+	queueService := services.NewAwsSQSService(queueClient, config.QueueProcessVideo, config.QueueResultVideo)
 	userManagerService := services.NewAWSCognitoService(cognitoClient)
 	// REPOSITORIES
 	videoRepository := repositories.NewVideoRepositoryDB(connection)
+	// CONSUMER
+	updateVideoProcessedConsumer := consumers.NewVideoProcessedConsumer(queueService, videoRepository)
 	// APP
 	app := app.NewAPIApp(
 		httpServer,
@@ -57,6 +61,7 @@ func main() {
 		queueService,
 		userManagerService,
 	)
+
+	go updateVideoProcessedConsumer.Run()
 	app.Run()
-	defer connection.Close()
 }
