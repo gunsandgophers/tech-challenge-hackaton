@@ -35,8 +35,9 @@ func main() {
 	)
 	snapshotService := services.NewFFMPEGService(ffmpegClient)
 
+	nWorkers := 10
 	consumer := consumers.NewVideoUploadedConsumer(
-		10,
+		nWorkers,
 		queueService,
 		storageService,
 		snapshotService,

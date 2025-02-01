@@ -25,9 +25,19 @@ func NewSnapshotUseCase(
 	}
 }
 
+const snapshotInterval int = 20
+
 func (s *SnapshotUseCase) Execute(input SnapshotInput) error {
 	// PROCESS ....
+	// Download video
+	_, err := s.snapshotService.Snapshot(input.VideoID, input.Filename, snapshotInterval)
+	if err != nil {
+		return err
+	}
+	// Upload zip file
+	// Delete local zip file
 	// END PROCESS ...
+
 	msg := services.VideoProcessedMessage{
 		VideoID: input.VideoID,
 		Filename: input.Filename,
