@@ -55,7 +55,11 @@ func (uv *UploadVideoUseCase) Execute(
 		return nil, err
 	}
 
-	if err := uv.queueService.SendVideoForProcessing(video); err != nil {
+	msg := services.VideoUploadedMessage{
+		VideoID: video.GetID(),
+		Filename: video.GetFilename(),
+	}
+	if err := uv.queueService.SendVideoUploadedMessage(msg); err != nil {
 		return nil, err
 	}
 
