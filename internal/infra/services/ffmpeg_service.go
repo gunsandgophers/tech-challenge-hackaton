@@ -20,27 +20,35 @@ func NewFFMPEGService(client *clients.FFMPEGClient) *FFMPEGService {
 	}
 }
 
-func (f *FFMPEGService) Snapshot(videoID string, localVideoDir string, filename string, interval int) (string, error) {
-	duration, err := f.client.VideoDirationInSeconds(filename)
+func (f *FFMPEGService) Snapshot(
+	videoID string,
+	localVideoDir string,
+	filename string,
+	interval int,
+) (string, string, error) {
+	videoFilenameComplete := fmt.Sprintf("%s/%s", localVideoDir, filename)
+	duration, err := f.client.VideoDirationInSeconds(videoFilenameComplete)
 	if err != nil {
-		return "", err
+		log.Println("Duration error")
+		return "", "", err
 	}
 
 	framesPath := filepath.Join(localVideoDir, "frames")
-	if err := os.MkdirAll(filepath.Dir(framesPath), 0775); err != nil {
-		return "", err
+	if err := os.MkdirAll(framesPath, 0775); err != nil {
+		log.Println("frames dir creation error")
+		return "", "", err
 	}
 
-	videoFilenameComplete := fmt.Sprintf("%s/%s", localVideoDir, filename)
 	for curr := 0; curr < int(duration); curr += interval {
 		if err := f.client.Snapshot(videoFilenameComplete, framesPath, curr); err != nil {
 			log.Println(err.Error())
 		}
 	}
 
-	zipFilenameComplete := fmt.Sprintf("%s/%s.zip", localVideoDir, videoID)
+	zipFilename := fmt.Sprintf("%s.zip", videoID)
+	zipFilenameComplete := fmt.Sprintf("%s/%s", localVideoDir, zipFilename)
 	zipDirectory(framesPath, zipFilenameComplete)
-	return zipFilenameComplete, nil
+	return zipFilenameComplete, zipFilename, nil
 }
 
 func zipDirectory(sourceDir, outputZip string) error {

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-awslocal s3api create-bucket --bucket ${AWS_BUCKET_NAME}
+awslocal s3api create-bucket --bucket ${AWS_S3_BUCKET_NAME}
 
 awslocal sqs create-queue --queue-name ${QUEUE_PROCESS_VIDEO}
 awslocal sqs create-queue --queue-name ${QUEUE_RESULT_VIDEO}

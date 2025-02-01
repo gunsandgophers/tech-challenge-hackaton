@@ -12,7 +12,7 @@ COPY . .
 
 RUN go mod download
 
-RUN go build -o build/api
+RUN go build -o build/api cmd/api/main.go
 
 CMD [ "build/api" ] 
 

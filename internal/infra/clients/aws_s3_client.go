@@ -3,6 +3,7 @@ package clients
 import (
 	"context"
 	"fmt"
+	"log"
 	"mime/multipart"
 	"os"
 	"path/filepath"
@@ -53,6 +54,8 @@ func (s *S3Client) UploadFile(
 		Body:   file,
 	})
 	if err != nil {
+		log.Println("Error on upload")
+		log.Println(err.Error())
 		return "", nil
 	}
 	return fmt.Sprint(awsBucketName, "/", key), nil
@@ -71,10 +74,15 @@ func (s *S3Client) DownloadFile(targetDir string, filename string, key string, a
 	defer fd.Close()
 
 	downloader := manager.NewDownloader(s.client)
-	downloader.Download(
+	_, err = downloader.Download(
 		context.Background(),
 		fd,
 		&s3.GetObjectInput{Bucket: aws.String(awsBucketName), Key: aws.String(key)},
 	)
+	if err != nil {
+		log.Println("Error on download")
+		log.Println(err.Error())
+		return "", err
+	}
 	return filenameCompleteLocal, nil
 }
