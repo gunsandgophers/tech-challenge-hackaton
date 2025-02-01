@@ -1,8 +1,10 @@
 package clients
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"mime/multipart"
 	"os"
@@ -85,4 +87,23 @@ func (s *S3Client) DownloadFile(targetDir string, filename string, key string, a
 		return "", err
 	}
 	return filenameCompleteLocal, nil
+}
+
+func (s *S3Client) GetFile(key string, awsBucketName string) ([]byte, error) {
+	output, err := s.client.GetObject(context.TODO(), &s3.GetObjectInput{
+		Bucket: aws.String(awsBucketName),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return nil, err
+	}
+	defer output.Body.Close()
+
+	buf := new(bytes.Buffer)
+	_, err = io.Copy(buf, output.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
 }
