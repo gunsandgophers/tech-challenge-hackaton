@@ -84,3 +84,7 @@ func (v *Video) GetStatus() vo.VideoStatus {
 func (v *Video) GetMimeType() vo.MIMEType {
 	return v.mimeType
 }
+
+func (v *Video) Finished() {
+	v.status = vo.VideoStatusFinished
+}

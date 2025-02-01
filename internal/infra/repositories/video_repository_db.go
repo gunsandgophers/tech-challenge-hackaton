@@ -30,6 +30,43 @@ func (r *VideoRepositoryDB) Insert(video *entities.Video) error {
 	)
 }
 
+func (r *VideoRepositoryDB) Update(video *entities.Video) error {
+	sql := `
+	UPDATE videos
+	SET
+		user_id = $1,
+		filename = $2,
+		status = $3,
+		mime_type = $4
+	WHERE
+		id = $5;
+	`
+	return r.conn.Exec(
+		sql,
+		video.GetUserID(),
+		video.GetFilename(),
+		video.GetStatus().String(),
+		video.GetMimeType().String(),
+		video.GetID(),
+	)
+}
+
+func (r *VideoRepositoryDB) Get(videoID string) (*entities.Video, error) {
+	sql := `
+	SELECT 
+		id,
+		user_id,
+		filename,
+		status,
+		mime_type
+	FROM public.videos
+	WHERE
+		id = $1
+	`
+	row := r.conn.QueryRow(sql, videoID)
+	return r.toDomain(row)
+}
+
 func (r *VideoRepositoryDB) ListByUserID(userID string) ([]*entities.Video, error) {
 	sql := `
 	SELECT 
@@ -37,7 +74,7 @@ func (r *VideoRepositoryDB) ListByUserID(userID string) ([]*entities.Video, erro
 		user_id,
 		filename,
 		status,
-		mime_type,
+		mime_type
 	FROM public.videos
 	WHERE
 		user_id = $1
