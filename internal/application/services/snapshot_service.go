@@ -1,6 +1,6 @@
 package services
 
 type SnapshotServiceInterface interface {
-	Snapshot(videoID, filename string, interval int) (string, error)
+	Snapshot(videoID string, localVideoDir string, filename string, interval int) (string, error)
 }
 

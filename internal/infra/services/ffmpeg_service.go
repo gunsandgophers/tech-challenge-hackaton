@@ -1,6 +1,14 @@
 package services
 
-import "tech-challenge-hackaton/internal/infra/clients"
+import (
+	"archive/zip"
+	"fmt"
+	"io"
+	"log"
+	"os"
+	"path/filepath"
+	"tech-challenge-hackaton/internal/infra/clients"
+)
 
 type FFMPEGService struct {
 	client *clients.FFMPEGClient
@@ -12,32 +20,64 @@ func NewFFMPEGService(client *clients.FFMPEGClient) *FFMPEGService {
 	}
 }
 
-func (f *FFMPEGService) Snapshot(videoID, filename string, interval int) (string, error) {
-	// fmt.Println("Processo iniciado:")
-	// videoPath := "Marvel_DOTNET_CSHARP.mp4"
-	// durationBytes, err := exec.Command("ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", videoPath).Output()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// durationSeconds, err := strconv.ParseFloat(strings.TrimSpace(string(durationBytes)), 32);
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// fmt.Printf("Duration in seconds %f\n", durationSeconds)
-	//
-	// interval := 20
-	// for curr := 0; curr < int(durationSeconds); curr += interval {
-	// 	fmt.Printf("Processando frame: %d\n", curr)
-	// 	t := time.Unix(int64(curr), 0).UTC()
-	// 	timeFormat := t.Format(time.TimeOnly)
-	// 	frameName := fmt.Sprintf("%sframe_at_%s.jpg", videoPath, timeFormat)
-	// 	fmt.Println(frameName)
-	// 	_, err := exec.Command("ffmpeg", "-ss", timeFormat, "-i", videoPath, "-frames:v", "1", "-q:v", "2", frameName).Output()
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }
+func (f *FFMPEGService) Snapshot(videoID string, localVideoDir string, filename string, interval int) (string, error) {
+	duration, err := f.client.VideoDirationInSeconds(filename)
+	if err != nil {
+		return "", err
+	}
 
-	return "", nil
+	framesPath := filepath.Join(localVideoDir, "frames")
+	if err := os.MkdirAll(filepath.Dir(framesPath), 0775); err != nil {
+		return "", err
+	}
+
+	videoFilenameComplete := fmt.Sprintf("%s/%s", localVideoDir, filename)
+	for curr := 0; curr < int(duration); curr += interval {
+		if err := f.client.Snapshot(videoFilenameComplete, framesPath, curr); err != nil {
+			log.Println(err.Error())
+		}
+	}
+
+	zipFilenameComplete := fmt.Sprintf("%s/%s.zip", localVideoDir, videoID)
+	zipDirectory(framesPath, zipFilenameComplete)
+	return zipFilenameComplete, nil
 }
 
+func zipDirectory(sourceDir, outputZip string) error {
+	zipFile, err := os.Create(outputZip)
+	if err != nil {
+		return err
+	}
+	defer zipFile.Close()
+
+	zipWriter := zip.NewWriter(zipFile)
+	defer zipWriter.Close()
+
+	return filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+
+		relPath, err := filepath.Rel(sourceDir, path)
+		if err != nil {
+			return err
+		}
+
+		file, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		zipEntry, err := zipWriter.Create(relPath)
+		if err != nil {
+			return err
+		}
+
+		_, err = io.Copy(zipEntry, file)
+		return err
+	})
+}

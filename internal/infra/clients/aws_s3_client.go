@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"mime/multipart"
+	"os"
+	"path/filepath"
 	"tech-challenge-hackaton/internal/utils"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -54,4 +56,25 @@ func (s *S3Client) UploadFile(
 		return "", nil
 	}
 	return fmt.Sprint(awsBucketName, "/", key), nil
+}
+
+func (s *S3Client) DownloadFile(targetDir string, filename string, key string, awsBucketName string) (string, error) {
+	filenameCompleteLocal := filepath.Join(targetDir, filename)
+	if err := os.MkdirAll(filepath.Dir(filenameCompleteLocal), 0775); err != nil {
+		return filenameCompleteLocal, err
+	}
+
+	fd, err := os.Create(filenameCompleteLocal)
+	if err != nil {
+		return filenameCompleteLocal, err
+	}
+	defer fd.Close()
+
+	downloader := manager.NewDownloader(s.client)
+	downloader.Download(
+		context.Background(),
+		fd,
+		&s3.GetObjectInput{Bucket: aws.String(awsBucketName), Key: aws.String(key)},
+	)
+	return filenameCompleteLocal, nil
 }

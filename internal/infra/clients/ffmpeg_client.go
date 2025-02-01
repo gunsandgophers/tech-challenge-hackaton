@@ -32,10 +32,10 @@ func (f *FFMPEGClient) VideoDirationInSeconds(videoPath string) (float64, error)
 	return strconv.ParseFloat(strings.TrimSpace(string(durationBytes)), 64)
 }
 
-func (f *FFMPEGClient) Snapshot(videoPath string, momentInSeconds float64) error {
+func (f *FFMPEGClient) Snapshot(videoFilenameComplete string, framesPath string, momentInSeconds int) error {
 	t := time.Unix(int64(momentInSeconds), 0).UTC()
 	timeFormat := t.Format(time.TimeOnly)
-	frameFileName := fmt.Sprintf("%sframe_at_%s.jpg", videoPath, timeFormat)
-	_, err := exec.Command("ffmpeg", "-ss", timeFormat, "-i", videoPath, "-frames:v", "1", "-q:v", "2", frameFileName).Output()
+	frameFileName := fmt.Sprintf("%sframe_at_%s.jpg", framesPath, timeFormat)
+	_, err := exec.Command("ffmpeg", "-ss", timeFormat, "-i", videoFilenameComplete, "-frames:v", "1", "-q:v", "2", frameFileName).Output()
 	return err
 }

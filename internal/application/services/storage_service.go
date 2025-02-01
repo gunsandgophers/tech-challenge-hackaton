@@ -5,5 +5,10 @@ import (
 )
 
 type StorageServiceInterface interface {
-	UploadVideo(videoID, filename string, file multipart.File) (string, error)
+	UploadVideo(filename string, file multipart.File) (string, error)
+	DownloadVideo(videoID, filename string) (string, error)
+	UploadZipFrames(filename string, file multipart.File) (string, error)
+	GetExternalVideoDir() string
+	GetExternalFramesDir() string
+	GetLocalVideoDir(videoID string) string
 }
