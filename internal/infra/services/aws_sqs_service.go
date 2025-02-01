@@ -2,9 +2,7 @@ package services
 
 import (
 	"encoding/json"
-	"tech-challenge-hackaton/internal/application/entities"
 	"tech-challenge-hackaton/internal/application/services"
-	"tech-challenge-hackaton/internal/application/vo"
 	"tech-challenge-hackaton/internal/infra/clients"
 )
 
@@ -32,15 +30,15 @@ func (s *AwsSQSService) sendMessage(message interface{}, queueURL string) error 
 	return s.client.SendMessage(string(body), queueURL)
 }
 
-func (s *AwsSQSService) receiveVideoMessage(queueURL string) ([]services.VideoMessageDTO, error) {
+func (s *AwsSQSService) receiveVideoMessage(queueURL string) ([]services.VideoMessage, error) {
 	messages, err := s.client.ReceiveMessages(maxMessagesReceive, queueURL)
 	if err != nil {
 		return nil, err
 	}
 
-	var videoMessages []services.VideoMessageDTO
+	var videoMessages []services.VideoMessage
 	for _, message := range messages {
-		var m services.VideoMessageDTO
+		var m services.VideoMessage
 		if err := json.Unmarshal([]byte(*message.Body), &m); err != nil {
 			return nil, err
 		}
@@ -50,15 +48,8 @@ func (s *AwsSQSService) receiveVideoMessage(queueURL string) ([]services.VideoMe
 	return videoMessages, nil
 }
 
-func (s *AwsSQSService) SendVideoUploadedMessage(video *entities.Video) error {
-	message := services.VideoMessageDTO{
-		ID:       video.GetID(),
-		UserID:   video.GetUserID(),
-		Status:   video.GetStatus().String(),
-		Filename: video.GetFilename(),
-		MIMEType: video.GetMimeType().String(),
-	}
-	return s.sendMessage(message, s.queueProcessVideo)
+func (s *AwsSQSService) SendVideoUploadedMessage(msg services.VideoUploadedMessage) error {
+	return s.sendMessage(msg, s.queueProcessVideo)
 }
 
 func (s *AwsSQSService) ReceiveVideoUploadedMessage() ([]services.VideoUploadedMessage, error) {
@@ -69,17 +60,11 @@ func (s *AwsSQSService) ReceiveVideoUploadedMessage() ([]services.VideoUploadedM
 
 	var messages []services.VideoUploadedMessage
 	for _, vm := range videoMessages {
-		video, err := entities.RestoreVideo(
-			vm.ID,
-			vm.UserID,
-			vo.VideoStatus(vm.Status),
-			vm.Filename,
-			vo.MIMEType(vm.MIMEType),
-		)
-		if err != nil {
-			return nil, err
-		}
-		messages = append(messages, services.VideoUploadedMessage{ID: vm.MessageID, Video: video})
+		messages = append(messages, services.VideoUploadedMessage{
+			MessageID: vm.MessageID,
+			VideoID: vm.VideoID,
+			Filename: vm.Filename,
+		})
 	}
 	return messages, nil
 }
@@ -88,15 +73,8 @@ func (s *AwsSQSService) AckVideoUploadedMessage(messageID string) error {
 	return s.client.DeleteMessage(messageID, s.queueProcessVideo)
 }
 
-func (s *AwsSQSService) SendVideoProcessedMessage(video *entities.Video) error {
-	message := services.VideoMessageDTO{
-		ID:       video.GetID(),
-		UserID:   video.GetUserID(),
-		Status:   video.GetStatus().String(),
-		Filename: video.GetFilename(),
-		MIMEType: video.GetMimeType().String(),
-	}
-	return s.sendMessage(message, s.queueResultVideo)
+func (s *AwsSQSService) SendVideoProcessedMessage(msg services.VideoProcessedMessage) error {
+	return s.sendMessage(msg, s.queueResultVideo)
 }
 
 func (s *AwsSQSService) ReceiveVideoProcessedMessage() ([]services.VideoProcessedMessage, error) {
@@ -107,17 +85,11 @@ func (s *AwsSQSService) ReceiveVideoProcessedMessage() ([]services.VideoProcesse
 
 	var messages []services.VideoProcessedMessage
 	for _, vm := range videoMessages {
-		video, err := entities.RestoreVideo(
-			vm.ID,
-			vm.UserID,
-			vo.VideoStatus(vm.Status),
-			vm.Filename,
-			vo.MIMEType(vm.MIMEType),
-		)
-		if err != nil {
-			return nil, err
-		}
-		messages = append(messages, services.VideoProcessedMessage{ID: vm.MessageID, Video: video})
+		messages = append(messages, services.VideoProcessedMessage{
+			MessageID: vm.MessageID,
+			VideoID: vm.VideoID,
+			Filename: vm.Filename,
+		})
 	}
 	return messages, nil
 }

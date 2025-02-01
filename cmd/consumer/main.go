@@ -2,14 +2,13 @@ package main
 
 import (
 	"tech-challenge-hackaton/configs"
+	"tech-challenge-hackaton/internal/consumers"
 	"tech-challenge-hackaton/internal/infra/clients"
-	"tech-challenge-hackaton/internal/infra/database"
-	httpserver "tech-challenge-hackaton/internal/infra/http"
-	"tech-challenge-hackaton/internal/infra/repositories"
 	"tech-challenge-hackaton/internal/infra/services"
 	"tech-challenge-hackaton/internal/utils"
-	"tech-challenge-hackaton/internal/web/app"
 )
+
+
 
 func main() {
 	config := utils.Must(configs.LoadConfig("../.", ".env"))
@@ -26,10 +25,21 @@ func main() {
 		config.AWSSQSSecretAccessKey,
 		config.AWSSQSBaseEndpoint,
 	)
+	ffmpegClient := clients.NewFFMPEGClient()
 	// SERVICES
 	storageService := services.NewAwsS3Service(storageClient, config.AWSS3BucketName)
-	queueService := services.NewAwsSQSService(queueClient, config.QueueProcessVideo)
+	queueService := services.NewAwsSQSService(
+		queueClient,
+		config.QueueProcessVideo,
+		config.QueueResultVideo,
+	)
+	snapshotService := services.NewFFMPEGService(ffmpegClient)
 
-
+	consumer := consumers.NewVideoUploadedConsumer(
+		10,
+		queueService,
+		storageService,
+		snapshotService,
+	)
+	consumer.Run()
 }
-
