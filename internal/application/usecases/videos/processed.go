@@ -20,5 +20,10 @@ func NewUpdateProcessedVideoUseCase(
 }
 
 func (u *UpdateProcessedVideoUseCase) Execute(input UpdateProcessedVideoInput) error {
-	return nil
+	video, err := u.repository.Get(input.VideoID)
+	if err != nil {
+		return err
+	}
+	video.Finished()
+	return u.repository.Update(video)
 }
