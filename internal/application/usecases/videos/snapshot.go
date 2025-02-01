@@ -1,6 +1,12 @@
 package videos
 
-import "tech-challenge-hackaton/internal/application/services"
+import (
+	"bytes"
+	"io"
+	"mime/multipart"
+	"os"
+	"tech-challenge-hackaton/internal/application/services"
+)
 
 type SnapshotUseCase struct {
 	queueService services.QueueServiceInterface
@@ -28,15 +34,28 @@ func NewSnapshotUseCase(
 const snapshotInterval int = 20
 
 func (s *SnapshotUseCase) Execute(input SnapshotInput) error {
-	// PROCESS ....
-	// Download video
-	_, err := s.snapshotService.Snapshot(input.VideoID, input.Filename, snapshotInterval)
+	_, err := s.storageService.DownloadVideo(input.VideoID, input.Filename)
 	if err != nil {
 		return err
 	}
-	// Upload zip file
-	// Delete local zip file
-	// END PROCESS ...
+
+	zipFilename, err := s.snapshotService.Snapshot(
+		input.VideoID,
+		s.storageService.GetLocalVideoDir(input.VideoID),
+		input.Filename,
+		snapshotInterval,
+	)
+	if err != nil {
+		return err
+	}
+
+	file, err := os.Open(zipFilename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	s.storageService.UploadZipFrames(input.Filename, file)
+	os.RemoveAll(s.storageService.GetLocalVideoDir(input.VideoID))
 
 	msg := services.VideoProcessedMessage{
 		VideoID: input.VideoID,

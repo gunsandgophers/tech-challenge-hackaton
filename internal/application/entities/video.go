@@ -2,6 +2,7 @@ package entities
 
 import (
 	"errors"
+	"fmt"
 	"tech-challenge-hackaton/internal/application/vo"
 	"tech-challenge-hackaton/internal/utils"
 
@@ -70,6 +71,10 @@ func (v *Video) GetUserID() string {
 
 func (v *Video) GetFilename() string {
 	return v.filename
+}
+
+func (v *Video) GetFullFilename() string {
+	return fmt.Sprintf("%s-%s", v.GetID(), v.GetFilename())
 }
 
 func (v *Video) GetStatus() vo.VideoStatus {

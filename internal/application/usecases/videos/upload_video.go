@@ -46,7 +46,7 @@ func (uv *UploadVideoUseCase) Execute(
 		return nil, err
 	}
 
-	newFilename, err := uv.storageService.UploadVideo(video.GetID(), video.GetFilename(), file)
+	newFilename, err := uv.storageService.UploadVideo(video.GetFullFilename(), file)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (uv *UploadVideoUseCase) Execute(
 
 	msg := services.VideoUploadedMessage{
 		VideoID: video.GetID(),
-		Filename: video.GetFilename(),
+		Filename: video.GetFullFilename(),
 	}
 	if err := uv.queueService.SendVideoUploadedMessage(msg); err != nil {
 		return nil, err
