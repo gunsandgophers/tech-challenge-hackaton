@@ -14,6 +14,17 @@ services:
         condition: service_started
       db:
         condition: service_healthy
+  consumer:
+    build:
+      context: ./
+      dockerfile: Dockerfile.consumer.dev
+    env_file: ./.env
+    restart: always
+    volumes:
+      - ./:/consumer
+    depends_on:
+      localstack:
+        condition: service_started
   localstack:
     image: localstack/localstack:4.0
     ports:

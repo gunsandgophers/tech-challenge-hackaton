@@ -1,9 +1,7 @@
 package videos
 
 import (
-	"bytes"
-	"io"
-	"mime/multipart"
+	"log"
 	"os"
 	"tech-challenge-hackaton/internal/application/services"
 )
@@ -39,22 +37,23 @@ func (s *SnapshotUseCase) Execute(input SnapshotInput) error {
 		return err
 	}
 
-	zipFilename, err := s.snapshotService.Snapshot(
+	zipFilenameComplete, zipFilename, err := s.snapshotService.Snapshot(
 		input.VideoID,
 		s.storageService.GetLocalVideoDir(input.VideoID),
 		input.Filename,
 		snapshotInterval,
 	)
 	if err != nil {
+		log.Println("Error snapshot service")
 		return err
 	}
 
-	file, err := os.Open(zipFilename)
+	file, err := os.Open(zipFilenameComplete)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
-	s.storageService.UploadZipFrames(input.Filename, file)
+	s.storageService.UploadZipFrames(zipFilename, file)
 	os.RemoveAll(s.storageService.GetLocalVideoDir(input.VideoID))
 
 	msg := services.VideoProcessedMessage{

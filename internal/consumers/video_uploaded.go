@@ -38,6 +38,7 @@ func (c *VideoUploadedConsumer) Run() {
 					Filename: msg.Filename,
 				}
 				if err := snapshotUC.Execute(input); err != nil {
+					log.Println("Error on UseCase")
 					log.Println(err.Error())
 				}
 				c.queueService.AckVideoUploadedMessage(msg.MessageID)
@@ -46,8 +47,10 @@ func (c *VideoUploadedConsumer) Run() {
 	}
 
 	for {
+		log.Println("Lendo mensagens")
 		messages, err := c.queueService.ReceiveVideoUploadedMessage()
 		if err != nil {
+			log.Println("Error receive video message")
 			log.Println(err.Error())
 			continue
 		}
