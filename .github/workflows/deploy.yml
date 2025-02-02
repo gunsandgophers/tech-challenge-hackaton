@@ -34,7 +34,7 @@ jobs:
 
       - name: Migrate
         env:
-          DB_URI: "postgres://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}/${{ secrets.DB_NAME }}?sslmode=disable"
+          DB_URI: "postgres://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}/${{ secrets.DB_NAME }}"
         run: make migrate
 
       - name: Set up QEMU
