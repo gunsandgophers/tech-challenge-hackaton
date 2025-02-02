@@ -14,14 +14,12 @@ type configuration struct {
 	AWSS3AccessKeyID     string  `mapstructure:"AWS_S3_ACCESS_KEY_ID"`
 	AWSS3SecretAccessKey string  `mapstructure:"AWS_S3_SECRET_ACCESS_KEY"`
 	AWSS3Region          string  `mapstructure:"AWS_S3_REGION"`
-	AWSS3AppClientID     string  `mapstructure:"AWS_S3_APP_CLIENT_ID"`
 	AWSS3BaseEndpoint    *string `mapstructure:"AWS_S3_BASE_ENDPOINT"`
 	AWSS3BucketName      string  `mapstructure:"AWS_S3_BUCKET_NAME"`
 
 	AWSSQSAccessKeyID     string  `mapstructure:"AWS_SQS_ACCESS_KEY_ID"`
 	AWSSQSSecretAccessKey string  `mapstructure:"AWS_SQS_SECRET_ACCESS_KEY"`
 	AWSSQSRegion          string  `mapstructure:"AWS_SQS_REGION"`
-	AWSSQSAppClientID     string  `mapstructure:"AWS_SQS_APP_CLIENT_ID"`
 	AWSSQSBaseEndpoint    *string `mapstructure:"AWS_SQS_BASE_ENDPOINT"`
 
 	AWSCognitoAccessKeyID     string `mapstructure:"AWS_COGNITO_ACCESS_KEY_ID"`

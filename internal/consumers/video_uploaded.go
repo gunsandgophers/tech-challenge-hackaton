@@ -7,9 +7,9 @@ import (
 )
 
 type VideoUploadedConsumer struct {
-	workers int
-	queueService services.QueueServiceInterface
-	storageService services.StorageServiceInterface
+	workers         int
+	queueService    services.QueueServiceInterface
+	storageService  services.StorageServiceInterface
 	snapshotService services.SnapshotServiceInterface
 }
 
@@ -20,9 +20,9 @@ func NewVideoUploadedConsumer(
 	snapshotService services.SnapshotServiceInterface,
 ) *VideoUploadedConsumer {
 	return &VideoUploadedConsumer{
-		workers: workers,
-		queueService: queueService,
-		storageService: storageService,
+		workers:         workers,
+		queueService:    queueService,
+		storageService:  storageService,
 		snapshotService: snapshotService,
 	}
 }
@@ -30,11 +30,14 @@ func NewVideoUploadedConsumer(
 func (c *VideoUploadedConsumer) Run() {
 	messagesToProcess := make(chan services.VideoUploadedMessage)
 	for i := 0; i < c.workers; i++ {
-		go func(){
+		go func() {
 			snapshotUC := videos.NewSnapshotUseCase(c.queueService, c.storageService, c.snapshotService)
 			for msg := range messagesToProcess {
+
+				log.Println("Message -> ", msg)
+
 				input := videos.SnapshotInput{
-					VideoID: msg.VideoID,
+					VideoID:  msg.VideoID,
 					Filename: msg.Filename,
 				}
 				if err := snapshotUC.Execute(input); err != nil {
@@ -42,12 +45,13 @@ func (c *VideoUploadedConsumer) Run() {
 					log.Println(err.Error())
 				}
 				c.queueService.AckVideoUploadedMessage(msg.MessageID)
+
+				log.Println("Finish snapshot process")
 			}
 		}()
 	}
 
 	for {
-		log.Println("Lendo mensagens")
 		messages, err := c.queueService.ReceiveVideoUploadedMessage()
 		if err != nil {
 			log.Println("Error receive video message")
@@ -60,4 +64,3 @@ func (c *VideoUploadedConsumer) Run() {
 		}
 	}
 }
-

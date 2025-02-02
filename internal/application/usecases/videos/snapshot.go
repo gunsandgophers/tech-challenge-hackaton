@@ -7,13 +7,13 @@ import (
 )
 
 type SnapshotUseCase struct {
-	queueService services.QueueServiceInterface
-	storageService services.StorageServiceInterface
+	queueService    services.QueueServiceInterface
+	storageService  services.StorageServiceInterface
 	snapshotService services.SnapshotServiceInterface
 }
 
 type SnapshotInput struct {
-	VideoID string
+	VideoID  string
 	Filename string
 }
 
@@ -23,8 +23,8 @@ func NewSnapshotUseCase(
 	snapshotService services.SnapshotServiceInterface,
 ) *SnapshotUseCase {
 	return &SnapshotUseCase{
-		queueService: queueService,
-		storageService: storageService,
+		queueService:    queueService,
+		storageService:  storageService,
 		snapshotService: snapshotService,
 	}
 }
@@ -32,10 +32,12 @@ func NewSnapshotUseCase(
 const snapshotInterval int = 20
 
 func (s *SnapshotUseCase) Execute(input SnapshotInput) error {
-	_, err := s.storageService.DownloadVideo(input.VideoID, input.Filename)
+	download, err := s.storageService.DownloadVideo(input.VideoID, input.Filename)
 	if err != nil {
 		return err
 	}
+
+	log.Println("download -> ", download)
 
 	zipFilenameComplete, zipFilename, err := s.snapshotService.Snapshot(
 		input.VideoID,
@@ -57,7 +59,7 @@ func (s *SnapshotUseCase) Execute(input SnapshotInput) error {
 	os.RemoveAll(s.storageService.GetLocalVideoDir(input.VideoID))
 
 	msg := services.VideoProcessedMessage{
-		VideoID: input.VideoID,
+		VideoID:  input.VideoID,
 		Filename: input.Filename,
 	}
 	if err := s.queueService.SendVideoProcessedMessage(msg); err != nil {

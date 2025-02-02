@@ -49,7 +49,7 @@ func (s *SQSClient) ReceiveMessages(maxMessages int, queueURL string) ([]types.M
 	resp, err := s.client.ReceiveMessage(context.TODO(), &sqs.ReceiveMessageInput{
 		QueueUrl:            aws.String(queueURL),
 		MaxNumberOfMessages: int32(maxMessages),
-		VisibilityTimeout:   30,
+		VisibilityTimeout:   600,
 		WaitTimeSeconds:     10,
 	})
 	if err != nil {

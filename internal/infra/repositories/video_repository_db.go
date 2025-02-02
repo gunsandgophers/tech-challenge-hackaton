@@ -5,6 +5,7 @@ import (
 	"tech-challenge-hackaton/internal/application/entities"
 	"tech-challenge-hackaton/internal/application/vo"
 	"tech-challenge-hackaton/internal/infra/database"
+	"time"
 )
 
 type VideoRepositoryDB struct {
@@ -37,9 +38,10 @@ func (r *VideoRepositoryDB) Update(video *entities.Video) error {
 		user_id = $1,
 		filename = $2,
 		status = $3,
-		mime_type = $4
+		mime_type = $4,
+		updated_at = $5
 	WHERE
-		id = $5;
+		id = $6;
 	`
 	return r.conn.Exec(
 		sql,
@@ -47,6 +49,7 @@ func (r *VideoRepositoryDB) Update(video *entities.Video) error {
 		video.GetFilename(),
 		video.GetStatus().String(),
 		video.GetMimeType().String(),
+		time.Now(),
 		video.GetID(),
 	)
 }

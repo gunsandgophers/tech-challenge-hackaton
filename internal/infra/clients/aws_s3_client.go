@@ -16,6 +16,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
 type S3Client struct {
@@ -79,7 +80,11 @@ func (s *S3Client) DownloadFile(targetDir string, filename string, key string, a
 	_, err = downloader.Download(
 		context.Background(),
 		fd,
-		&s3.GetObjectInput{Bucket: aws.String(awsBucketName), Key: aws.String(key)},
+		&s3.GetObjectInput{
+			Bucket:       aws.String(awsBucketName),
+			Key:          aws.String(key),
+			ChecksumMode: types.ChecksumModeEnabled,
+		},
 	)
 	if err != nil {
 		log.Println("Error on download")
@@ -91,8 +96,9 @@ func (s *S3Client) DownloadFile(targetDir string, filename string, key string, a
 
 func (s *S3Client) GetFile(key string, awsBucketName string) ([]byte, error) {
 	output, err := s.client.GetObject(context.TODO(), &s3.GetObjectInput{
-		Bucket: aws.String(awsBucketName),
-		Key:    aws.String(key),
+		Bucket:       aws.String(awsBucketName),
+		Key:          aws.String(key),
+		ChecksumMode: types.ChecksumModeEnabled,
 	})
 	if err != nil {
 		return nil, err
