@@ -68,7 +68,7 @@ jobs:
         run: aws eks update-kubeconfig --name ${{ secrets.CLUSTER_NAME }} --region us-east-1
 
       - name: Kube Create Secret
-        run: kubectl create secret generic tech-challenge-hackaton-secrets \
+        run: kubectl create secret generic "tech-challenge-hackaton-secrets" \
           --from-literal=DB_PASSWORD=${{secrets.DB_PASSWORD}} \
           --from-literal=AWS_ACCESS_KEY_ID=${{secrets.AWS_ACCESS_KEY_ID}} \
           --from-literal=AWS_SECRET_ACCESS_KEY=${{secrets.AWS_SECRET_ACCESS_KEY}} \
