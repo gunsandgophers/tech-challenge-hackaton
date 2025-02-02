@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tech-challenge-hackaton-api-deployment
+  labels:
+    app: tech-challenge-hackaton-api-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tech-challenge-hackaton-api-deployment
+  template:
+    metadata:
+      labels:
+        app: tech-challenge-hackaton-api-deployment
+    spec:
+      containers:
+      - name: tech-challenge-hackaton-api
+        image: raffiuds/tech-challenge-hackaton-api:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: tech-challenge-hackaton-config
+              key: DB_NAME
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: tech-challenge-hackaton-config
+              key: DB_HOST
+        - name: QUEUE_PROCESS_VIDEO
+          valueFrom:
+            configMapKeyRef:
+              name: tech-challenge-hackaton-config
+              key: QUEUE_PROCESS_VIDEO
+        - name: QUEUE_RESULT_VIDEO
+          valueFrom:
+            configMapKeyRef:
+              name: tech-challenge-hackaton-config
+              key: QUEUE_RESULT_VIDEO
+        - name: AWS_S3_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: tech-challenge-hackaton-config
+              key: AWS_REGION
+        - name: AWS_SQS_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: tech-challenge-hackaton-config
+              key: AWS_REGION
+        - name: AWS_COGNITO_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: tech-challenge-hackaton-config
+              key: AWS_REGION
+        - name: AWS_S3_BUCKET_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: tech-challenge-hackaton-config
+              key: AWS_S3_BUCKET_NAME
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: tech-challenge-hackaton-config
+              key: DB_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tech-challenge-hackaton-secrets
+              key: DB_PASSWORD
+        - name: AWS_S3_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: tech-challenge-hackaton-secrets
+              key: AWS_ACCESS_KEY_ID 
+        - name: AWS_S3_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: tech-challenge-hackaton-secrets
+              key: AWS_SECRET_ACCESS_KEY
+        - name: AWS_SQS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: tech-challenge-hackaton-secrets
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SQS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: tech-challenge-hackaton-secrets
+              key: AWS_SECRET_ACCESS_KEY
+        - name: AWS_COGNITO_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: tech-challenge-hackaton-secrets
+              key: AWS_COGNITO_ACCESS_KEY_ID
+        - name: AWS_COGNITO_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: tech-challenge-hackaton-secrets
+              key: AWS_COGNITO_SECRET_ACCESS_KEY 
+        - name: AWS_COGNITO_APP_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: tech-challenge-hackaton-secrets
+              key: AWS_COGNITO_APP_CLIENT_ID 
+        - name: AWS_COGNITO_APP_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: tech-challenge-hackaton-secrets
+              key: AWS_COGNITO_APP_CLIENT_SECRET 
+        - name: AWS_COGNITO_USER_POOL_ID
+          valueFrom:
+            secretKeyRef:
+              name: tech-challenge-hackaton-secrets
+              key: AWS_COGNITO_USER_POOL_ID      
+        livenessProbe:
+          httpGet:
+            path: /api/v1
+            port: 8080
+          initialDelaySeconds: 180
+          periodSeconds: 15
+        resources:
+          requests:
+            cpu: 200m

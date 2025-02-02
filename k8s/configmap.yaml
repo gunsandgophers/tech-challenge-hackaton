@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tech-challenge-hackaton-config
+data:
+  # DB
+  DB_HOST: "tech-challenge-hackaton-rds.cdmsim2u8a3c.us-east-1.rds.amazonaws.com"
+  DB_NAME: "tech_challenge_hackaton"
+  DB_USER: "tech_challenge_hackaton"
+  # queue
+  QUEUE_PROCESS_VIDEO: "process-video-queue"
+  QUEUE_RESULT_VIDEO: "result-video-queue"
+  # AWS
+  AWS_REGION: "us-east-1"
+  AWS_S3_BUCKET_NAME: "tech-challenge-hackaton"
