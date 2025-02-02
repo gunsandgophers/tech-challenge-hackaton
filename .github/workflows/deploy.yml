@@ -65,6 +65,10 @@ jobs:
           file: Dockerfile.consumer
 
       - name: Update Kube Config
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_EKS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_EKS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_EKS_SESSION_TOKEN }}
         run: aws eks update-kubeconfig --name ${{ secrets.CLUSTER_NAME }} --region us-east-1
 
       - name: Kube Create Secret
