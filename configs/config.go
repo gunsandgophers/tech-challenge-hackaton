@@ -32,7 +32,7 @@ type configuration struct {
 	QueueProcessVideo           string `mapstructure:"QUEUE_PROCESS_VIDEO"`
 	QueueResultVideo            string `mapstructure:"QUEUE_RESULT_VIDEO"`
 	DeadLetterQueueProcessVideo string `mapstructure:"DEAD_LETTER_QUEUE_PROCESS_VIDEO"`
-	DeadLetterQueueResultVideo string `mapstructure:"DEAD_LETTER_QUEUE_RESULT_VIDEO"`
+	DeadLetterQueueResultVideo  string `mapstructure:"DEAD_LETTER_QUEUE_RESULT_VIDEO"`
 }
 
 func LoadConfig(path string, fileName string) (*configuration, error) {
@@ -41,9 +41,8 @@ func LoadConfig(path string, fileName string) (*configuration, error) {
 	viper.AddConfigPath(path)
 	viper.SetConfigFile(fileName)
 	viper.AutomaticEnv()
-	if err := viper.ReadInConfig(); err != nil {
-		return nil, err
-	}
+	viper.ReadInConfig()
+
 	var cfg *configuration
 	if err := viper.Unmarshal(&cfg); err != nil {
 		return nil, err

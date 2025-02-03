@@ -12,3 +12,6 @@ migrate:
 
 migrate/create:
 	docker run -v ./migrations:/migrations --network host migrate/migrate create -ext sql -dir ./migrations $(name)
+
+mock/create:
+	docker run -v ./:/src -w /src vektra/mockery --all

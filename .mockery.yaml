@@ -1,0 +1,11 @@
+with-expecter: True
+inpackage: False
+dir: "internal/tests/mocks"
+mockname: "{{.InterfaceName}}Mock"
+outpkg: "mocks"
+filename: "{{.InterfaceNameSnake}}_mock.go"
+all: True
+packages:
+   tech-challenge-hackaton:
+    config:
+      recursive: True
