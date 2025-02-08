@@ -32,12 +32,10 @@ func NewSnapshotUseCase(
 const snapshotInterval int = 20
 
 func (s *SnapshotUseCase) Execute(input SnapshotInput) error {
-	download, err := s.storageService.DownloadVideo(input.VideoID, input.Filename)
+	_, err := s.storageService.DownloadVideo(input.VideoID, input.Filename)
 	if err != nil {
 		return err
 	}
-
-	log.Println("download -> ", download)
 
 	zipFilenameComplete, zipFilename, err := s.snapshotService.Snapshot(
 		input.VideoID,
@@ -55,8 +53,12 @@ func (s *SnapshotUseCase) Execute(input SnapshotInput) error {
 		return err
 	}
 	defer file.Close()
-	s.storageService.UploadZipFrames(zipFilename, file)
-	os.RemoveAll(s.storageService.GetLocalVideoDir(input.VideoID))
+	defer os.RemoveAll(s.storageService.GetLocalVideoDir(input.VideoID))
+
+	_, err = s.storageService.UploadZipFrames(zipFilename, file)
+	if err != nil {
+		return err
+	}
 
 	msg := services.VideoProcessedMessage{
 		VideoID:  input.VideoID,
