@@ -11,26 +11,39 @@ import (
 )
 
 type VideoController struct {
-	storageService  services.StorageServiceInterface
-	videoRepository repositories.VideoRepositoryInterface
-	queueService    services.QueueServiceInterface
-	userManagerService    services.UserManagerServiceInterface
+	storageService     services.StorageServiceInterface
+	videoRepository    repositories.VideoRepositoryInterface
+	queueService       services.QueueServiceInterface
+	userManagerService services.UserManagerServiceInterface
 }
 
 func NewVideoController(
 	storageService services.StorageServiceInterface,
 	videoRepository repositories.VideoRepositoryInterface,
 	queueService services.QueueServiceInterface,
-	userManagerService    services.UserManagerServiceInterface,
+	userManagerService services.UserManagerServiceInterface,
 ) *VideoController {
 	return &VideoController{
-		storageService:  storageService,
-		videoRepository: videoRepository,
-		queueService:    queueService,
+		storageService:     storageService,
+		videoRepository:    videoRepository,
+		queueService:       queueService,
 		userManagerService: userManagerService,
 	}
 }
 
+// Checkout godoc
+//
+// @Summary		Upload Videos
+// @Description	Upload videos to snapshot
+// @Tags				videos
+// @Accept multipart/form-data
+// @Produce		json
+// @Param file formData file true "video para upload"
+// @Security BearerToken
+// @Success		200			{object}	JSONResponse{data=videos.VideoUploadResponseDTO}  "token"
+// @Failure		400			{object}	ErrorJSONResponse	"when bad request"
+// @Failure		406			{object}	ErrorJSONResponse	"when invalid params or invalid object"
+// @Router			/videos/upload [post]
 func (cc *VideoController) Upload(c httpserver.HTTPContext) {
 	token, err := cc.userManagerService.ValidateAccessTokenByAuthHeader(c.GetHeader("Authorization"))
 	if err != nil {
@@ -76,6 +89,17 @@ func (cc *VideoController) Upload(c httpserver.HTTPContext) {
 	sendSuccess(c, http.StatusCreated, "Upload finished", response)
 }
 
+// Checkout godoc
+//
+// @Summary		List Uploaded Videos
+// @Description	List uploaded videos by logged user
+// @Tags				videos
+// @Produce		json
+// @Security BearerToken
+// @Success		200			{object}	JSONResponse{data=videos.ListVideosOutput}  "token"
+// @Failure		400			{object}	ErrorJSONResponse	"when bad request"
+// @Failure		406			{object}	ErrorJSONResponse	"when invalid params or invalid object"
+// @Router			/videos [get]
 func (cc *VideoController) List(c httpserver.HTTPContext) {
 	token, err := cc.userManagerService.ValidateAccessTokenByAuthHeader(c.GetHeader("Authorization"))
 	if err != nil {
@@ -98,6 +122,18 @@ func (cc *VideoController) List(c httpserver.HTTPContext) {
 	sendSuccess(c, http.StatusOK, "list videos", output)
 }
 
+// Checkout godoc
+//
+// @Summary		Download Videos Snapshot
+// @Description	Downalod videos snapshot
+// @Tags				videos
+// @Produce application/zip
+// @Param id path string true "video ID for download"
+// @Security BearerToken
+// @Success 200 {file} application/zip "ZIP File with snapshots"
+// @Failure		400			{object}	ErrorJSONResponse	"when bad request"
+// @Failure		406			{object}	ErrorJSONResponse	"when invalid params or invalid object"
+// @Router			/videos/download/{id} [get]
 func (cc *VideoController) Download(c httpserver.HTTPContext) {
 	token, err := cc.userManagerService.ValidateAccessTokenByAuthHeader(c.GetHeader("Authorization"))
 	if err != nil {

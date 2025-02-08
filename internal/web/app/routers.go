@@ -3,6 +3,8 @@ package app
 import (
 	"tech-challenge-hackaton/internal/web/controllers"
 	httpserver "tech-challenge-hackaton/internal/infra/http"
+
+	_ "tech-challenge-hackaton/docs"
 )
 
 func registerRouters(app *APIApp) {
@@ -22,4 +24,6 @@ func registerRouters(app *APIApp) {
 	app.httpServer.(httpserver.HTTPRoutes).POST("/videos/upload", videoController.Upload)
 	app.httpServer.(httpserver.HTTPRoutes).GET("/videos/", videoController.List)
 	app.httpServer.(httpserver.HTTPRoutes).GET("/videos/download/:id", videoController.Download)
+
+	app.httpServer.(httpserver.HTTPRoutes).SetSwagger("/swagger/*any")
 }
