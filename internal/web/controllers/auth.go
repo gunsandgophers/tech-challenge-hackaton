@@ -8,14 +8,14 @@ import (
 )
 
 type AuthController struct {
-	userManagerService    services.UserManagerServiceInterface
+	userManagerService services.UserManagerServiceInterface
 }
 
 func NewAuthControllerController(
 	userManagerService services.UserManagerServiceInterface,
 ) *AuthController {
 	return &AuthController{
-		userManagerService:    userManagerService,
+		userManagerService: userManagerService,
 	}
 }
 
@@ -24,6 +24,18 @@ type LoginRequest struct {
 	Password string `json:"password,omitempty"`
 }
 
+// Checkout godoc
+//
+//	@Summary		Login on system
+//	@Description	login at system
+//	@Tags				auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			login	body		LoginRequest	true	"Login Params"
+//	@Success		200			{object}	JSONResponse{data=string}  "token"
+//	@Failure		400			{object}	ErrorJSONResponse	"when bad request"
+//	@Failure		406			{object}	ErrorJSONResponse	"when invalid params or invalid object"
+//	@Router			/auth/login [post]
 func (ac *AuthController) Login(c httpserver.HTTPContext) {
 	request := LoginRequest{}
 	c.BindJSON(&request)

@@ -1,0 +1,209 @@
+basePath: /api/v1
+definitions:
+  controllers.ErrorJSONResponse:
+    properties:
+      error_code:
+        type: integer
+      message:
+        type: string
+    type: object
+  controllers.JSONResponse:
+    properties:
+      data: {}
+      message:
+        type: string
+    type: object
+  controllers.LoginRequest:
+    properties:
+      password:
+        type: string
+      user:
+        type: string
+    type: object
+  videos.ListVideosOutput:
+    properties:
+      videos:
+        items:
+          $ref: '#/definitions/videos.VideoOutput'
+        type: array
+    type: object
+  videos.VideoOutput:
+    properties:
+      filename:
+        type: string
+      id:
+        type: string
+      mime_type:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: string
+    type: object
+  videos.VideoUploadDTO:
+    properties:
+      filename:
+        type: string
+      id:
+        type: string
+    type: object
+  videos.VideoUploadResponseDTO:
+    properties:
+      videos:
+        items:
+          $ref: '#/definitions/videos.VideoUploadDTO'
+        type: array
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:3003
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server celler server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: login at system
+      parameters:
+      - description: Login Params
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            allOf:
+            - $ref: '#/definitions/controllers.JSONResponse'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: when bad request
+          schema:
+            $ref: '#/definitions/controllers.ErrorJSONResponse'
+        "406":
+          description: when invalid params or invalid object
+          schema:
+            $ref: '#/definitions/controllers.ErrorJSONResponse'
+      summary: Login on system
+      tags:
+      - auth
+  /videos:
+    get:
+      description: List uploaded videos by logged user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            allOf:
+            - $ref: '#/definitions/controllers.JSONResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/videos.ListVideosOutput'
+              type: object
+        "400":
+          description: when bad request
+          schema:
+            $ref: '#/definitions/controllers.ErrorJSONResponse'
+        "406":
+          description: when invalid params or invalid object
+          schema:
+            $ref: '#/definitions/controllers.ErrorJSONResponse'
+      security:
+      - BearerToken: []
+      summary: List Uploaded Videos
+      tags:
+      - videos
+  /videos/download/{id}:
+    get:
+      description: Downalod videos snapshot
+      parameters:
+      - description: video ID for download
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/zip
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: when bad request
+          schema:
+            $ref: '#/definitions/controllers.ErrorJSONResponse'
+        "406":
+          description: when invalid params or invalid object
+          schema:
+            $ref: '#/definitions/controllers.ErrorJSONResponse'
+      security:
+      - BearerToken: []
+      summary: Download Videos Snapshot
+      tags:
+      - videos
+  /videos/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload videos to snapshot
+      parameters:
+      - description: video para upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            allOf:
+            - $ref: '#/definitions/controllers.JSONResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/videos.VideoUploadResponseDTO'
+              type: object
+        "400":
+          description: when bad request
+          schema:
+            $ref: '#/definitions/controllers.ErrorJSONResponse'
+        "406":
+          description: when invalid params or invalid object
+          schema:
+            $ref: '#/definitions/controllers.ErrorJSONResponse'
+      security:
+      - BearerToken: []
+      summary: Upload Videos
+      tags:
+      - videos
+securityDefinitions:
+  BearerToken:
+    description: 'Type "Bearer" followed by a space and JWT token like this format:
+      Bearer {token}'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -12,3 +12,9 @@ migrate:
 
 migrate/create:
 	docker run -v ./migrations:/migrations --network host migrate/migrate create -ext sql -dir ./migrations $(name)
+
+swagger:
+	docker run --rm -v ./:/code ghcr.io/swaggo/swag:v1.16.4 init -g ./cmd/api/main.go
+
+swagger-mac:
+	docker run --platform linux/amd64 --rm -v ./:/code ghcr.io/swaggo/swag:latest init -g ./cmd/api/main.go
