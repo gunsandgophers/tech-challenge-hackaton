@@ -24,6 +24,15 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
 
+      - name: Go test with cover
+        run: go test ./... -coverprofile=cover.out
+
+      - name: SonarQube Cloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
       - name: "Configure AWS Credentials"
         uses: aws-actions/configure-aws-credentials@v4
         with:
