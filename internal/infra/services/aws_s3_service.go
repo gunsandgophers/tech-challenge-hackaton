@@ -8,7 +8,7 @@ import (
 )
 
 type AwsS3Service struct {
-	client *clients.S3Client
+	client        *clients.S3Client
 	awsBucketName string
 }
 
@@ -18,7 +18,7 @@ const localDir string = "tmp"
 
 func NewAwsS3Service(client *clients.S3Client, awsBucketName string) *AwsS3Service {
 	return &AwsS3Service{
-		client: client,
+		client:        client,
 		awsBucketName: awsBucketName,
 	}
 }

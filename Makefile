@@ -18,3 +18,6 @@ swagger:
 
 swagger-mac:
 	docker run --platform linux/amd64 --rm -v ./:/code ghcr.io/swaggo/swag:latest init -g ./cmd/api/main.go
+
+mock/create:
+	docker run -v ./:/src -w /src vektra/mockery --all
